@@ -1,0 +1,117 @@
+# ============================================================
+# ML Core — C++ / CMake / Eigen project
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Build artifacts
+# ------------------------------------------------------------
+build/
+cmake-build-*/
+out/
+bin/
+lib/
+
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+
+
+# ------------------------------------------------------------
+# Compiled objects and binaries
+# ------------------------------------------------------------
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.dSYM/
+
+
+# ------------------------------------------------------------
+# Generated experiment outputs
+# ------------------------------------------------------------
+outputs/
+*.log
+
+# Keep folder structure if needed
+!outputs/.gitkeep
+
+
+# ------------------------------------------------------------
+# Data policy
+# ------------------------------------------------------------
+# Keep small curated datasets if intentionally committed.
+# Ignore large/raw/local datasets by default.
+data/raw/
+data/external/
+data/tmp/
+data/cache/
+
+# Keep folder structure if needed
+!data/.gitkeep
+
+
+# ------------------------------------------------------------
+# Experiment workspace
+# ------------------------------------------------------------
+experiments/tmp/
+experiments/cache/
+experiments/runs/
+
+!experiments/.gitkeep
+
+
+# ------------------------------------------------------------
+# Python helper artifacts
+# For plotting, comparison scripts, notebooks, etc.
+# ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+.env
+.env.*
+
+
+# ------------------------------------------------------------
+# Editor / IDE files
+# ------------------------------------------------------------
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+
+.idea/
+*.swp
+*.swo
+
+
+# ------------------------------------------------------------
+# macOS / system files
+# ------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+
+# ------------------------------------------------------------
+# Temporary files
+# ------------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
