@@ -34,4 +34,16 @@ void validate_non_empty_vector(
     const std::string& context
 );
 
+void validate_min_vector_size(
+    const Vector& v,
+    Eigen::Index min_size,
+    const std::string& context
+);
+
+void validate_min_matrix_rows(
+    const Matrix& X,
+    Eigen::Index min_rows,
+    const std::string& context
+);
+
 }  // namespace ml

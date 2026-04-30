@@ -513,3 +513,88 @@ In binary classification, the sign of this score can define which side of a deci
 In regression, this score defines the predicted continuous value before adding the bias.
 
 Therefore, matrix multiplication is not just a computational operation. It is the mathematical bridge between raw features and model predictions.
+
+---
+
+## 8. Descriptive Statistics
+
+Descriptive statistics summarize numerical data.
+
+In Machine Learning, they are used to understand datasets, preprocess features, detect scale problems, and compute evaluation metrics.
+
+For a vector:
+
+$$
+x =
+\begin{bmatrix}
+x_1 \\
+x_2 \\
+\vdots \\
+x_m
+\end{bmatrix}
+$$
+
+the mean is:
+
+$$
+\mu = \frac{1}{m} \sum_{i=1}^{m} x_i
+$$
+
+The mean describes the central value of the data.
+
+The variance measures average squared deviation from the mean.
+
+For a population variance:
+
+$$
+\sigma^2 = \frac{1}{m} \sum_{i=1}^{m}(x_i - \mu)^2
+$$
+
+For a sample variance:
+
+$$
+s^2 = \frac{1}{m - 1} \sum_{i=1}^{m}(x_i - \mu)^2
+$$
+
+The standard deviation is the square root of the variance:
+
+$$
+\sigma = \sqrt{\sigma^2}
+$$
+
+These quantities are important because many ML algorithms are sensitive to feature scale.
+
+### Feature-wise Statistics
+
+For a dataset:
+
+$$
+X \in \mathbb{R}^{m \times n}
+$$
+
+we often compute statistics column by column.
+
+The mean of feature \(j\) is:
+
+$$
+\mu_j = \frac{1}{m} \sum_{i=1}^{m} X_{ij}
+$$
+
+The result is a vector:
+
+$$
+\mu \in \mathbb{R}^{n}
+$$
+
+where each entry corresponds to one feature.
+
+Feature-wise statistics are used for:
+
+- standardization
+- normalization
+- exploratory data analysis
+- outlier detection
+- covariance computation
+- PCA
+
+ML Core uses column-wise statistics by default because columns represent features.

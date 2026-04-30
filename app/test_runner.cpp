@@ -1,6 +1,7 @@
 #include "ml/common/shape_validation.hpp"
 #include "ml/common/types.hpp"
 #include "ml/common/math_ops.hpp"
+#include "ml/common/statistics.hpp"
 
 #include <cmath>
 #include <exception>
@@ -360,7 +361,7 @@ void test_mean_squared_error_rejects_mismatched_vectors() {
 }
 
 void run_math_ops_tests() {
-        std::cout << "\n[Phase 1.2] Matrix multiplication and math operations tests\n\n";
+    std::cout << "\n[Phase 1.2] Matrix multiplication and math operations tests\n\n";
 
     expect_no_throw(
         "dot_product computes expected scalar",
@@ -413,10 +414,186 @@ void run_math_ops_tests() {
     );
 }
 
+void test_mean_computes_expected_value() {
+    ml::Vector values(4);
+    values << 1.0, 2.0, 3.0, 4.0;
+
+    const double result = ml::mean(values);
+
+    assert_almost_equal(result, 2.5, "test_mean_computes_expected_value");
+}
+
+void test_mean_rejects_empty_vector() {
+    ml::Vector values(0);
+
+    static_cast<void>(ml::mean(values));
+}
+
+void test_variance_population_computes_expected_value() {
+    ml::Vector values(4);
+    values << 1.0, 2.0, 3.0, 4.0;
+
+    const double result = ml::variance_population(values);
+
+    assert_almost_equal(result, 1.25, "test_variance_population_computes_expected_value");
+}
+
+void test_variance_sample_computes_expected_value() {
+    ml::Vector values(4);
+    values << 1.0, 2.0, 3.0, 4.0;
+
+    const double result = ml::variance_sample(values);
+
+    assert_almost_equal(result, 5.0 / 3.0, "test_variance_sample_computes_expected_value");
+}
+
+void test_variance_sample_rejects_single_value_vector() {
+    ml::Vector values(1);
+    values << 1.0;
+
+    static_cast<void>(ml::variance_sample(values));
+}
+
+void test_standard_deviation_population_computes_expected_value() {
+    ml::Vector values(4);
+    values << 1.0, 2.0, 3.0, 4.0;
+
+    const double result = ml::standard_deviation_population(values);
+
+    assert_almost_equal(
+        result,
+        std::sqrt(1.25),
+        "test_standard_deviation_population_computes_expected_value"
+    );
+}
+
+void test_standard_deviation_sample_computes_expected_value() {
+    ml::Vector values(4);
+    values << 1.0, 2.0, 3.0, 4.0;
+
+    const double result = ml::standard_deviation_sample(values);
+
+    assert_almost_equal(
+        result,
+        std::sqrt(5.0 / 3.0),
+        "test_standard_deviation_sample_computes_expected_value"
+    );
+}
+
+void test_column_means_computes_expected_vector() {
+    ml::Matrix X(3, 2);
+    X << 1.0, 2.0,
+         3.0, 4.0,
+         5.0, 6.0;
+
+    const ml::Vector result = ml::column_means(X);
+
+    ml::Vector expected(2);
+    expected << 3.0, 4.0;
+
+    assert_vector_almost_equal(result, expected, "test_column_means_computes_expected_vector");
+}
+
+void test_column_variance_population_computes_expected_vector() {
+    ml::Matrix X(3, 2);
+    X << 1.0, 2.0,
+         3.0, 4.0,
+         5.0, 6.0;
+
+    const ml::Vector result = ml::column_variance_population(X);
+
+    ml::Vector expected(2);
+    expected << 8.0 / 3.0, 8.0 / 3.0;
+
+    assert_vector_almost_equal(result, expected, "test_column_variance_population_computes_expected_vector");
+}
+
+void test_column_variance_sample_computes_expected_vector() {
+    ml::Matrix X(3, 2);
+    X << 1.0, 2.0,
+         3.0, 4.0,
+         5.0, 6.0;
+
+    const ml::Vector result = ml::column_variance_sample(X);
+
+    ml::Vector expected(2);
+    expected << 4.0, 4.0;
+
+    assert_vector_almost_equal(result, expected, "test_column_variance_sample_computes_expected_vector");
+}
+
+void test_column_variance_sample_rejects_single_row_matrix() {
+    ml::Matrix X(1, 2);
+    X << 1.0, 2.0;
+
+    static_cast<void>(ml::column_variance_sample(X));
+}
+
+void run_statistics_tests() {
+    std::cout << "\n[Phase 1.3] Descriptive statistics tests\n\n";
+
+    expect_no_throw(
+        "mean computes expected value",
+        test_mean_computes_expected_value
+    );
+
+    expect_invalid_argument(
+        "mean rejects empty vector",
+        test_mean_rejects_empty_vector
+    );
+
+    expect_no_throw(
+        "variance_population computes expected value",
+        test_variance_population_computes_expected_value
+    );
+
+    expect_no_throw(
+        "variance_sample computes expected value",
+        test_variance_sample_computes_expected_value
+    );
+
+    expect_invalid_argument(
+        "variance_sample rejects vector with one element",
+        test_variance_sample_rejects_single_value_vector
+    );
+
+    expect_no_throw(
+        "standard_deviation_population computes expected value",
+        test_standard_deviation_population_computes_expected_value
+    );
+
+    expect_no_throw(
+        "standard_deviation_sample computes expected value",
+        test_standard_deviation_sample_computes_expected_value
+    );
+
+    expect_no_throw(
+        "column_means computes expected vector",
+        test_column_means_computes_expected_vector
+    );
+
+    expect_no_throw(
+        "column_variance_population computes expected vector",
+        test_column_variance_population_computes_expected_vector
+    );
+
+    expect_no_throw(
+        "column_variance_sample computes expected vector",
+        test_column_variance_sample_computes_expected_vector
+    );
+
+    expect_invalid_argument(
+        "column_variance_sample rejects matrix with one row",
+        test_column_variance_sample_rejects_single_row_matrix
+    );
+}
+
 }  // namespace
 
 int main() {
     run_shape_validation_tests();
     run_math_ops_tests();
+    run_statistics_tests();
+    
     return 0;
 }

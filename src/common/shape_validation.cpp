@@ -84,4 +84,56 @@ void validate_non_empty_vector(
     }
 }
 
+void validate_min_vector_size(
+    const Vector& v,
+    Eigen::Index min_size,
+    const std::string& context
+) {
+    if (min_size < 0) {
+        std::ostringstream oss;
+        oss << context
+            << ": min_size must be non-negative. Got min_size = "
+            << min_size
+            << ".";
+        throw std::invalid_argument(oss.str());
+    }
+    
+    if (v.size() < min_size) {
+        std::ostringstream oss;
+        oss << context
+            << ": vector size must be at least "
+            << min_size
+            << ". Got v.size() = "
+            << v.size()
+            << ".";
+        throw std::invalid_argument(oss.str());
+    }
+}
+
+void validate_min_matrix_rows(
+    const Matrix& X,
+    Eigen::Index min_rows,
+    const std::string& context
+) {
+    if (min_rows < 0) {
+        std::ostringstream oss;
+        oss << context
+            << ": min_rows must be non-negative. Got min_rows = "
+            << min_rows
+            << ".";
+        throw std::invalid_argument(oss.str());
+    }
+
+    if (X.rows() < min_rows) {
+        std::ostringstream oss;
+        oss << context
+            << ": matrix number of rows must be at least "
+            << min_rows
+            << ". Got X.rows() = "
+            << X.rows()
+            << ".";
+        throw std::invalid_argument(oss.str());
+    }
+}
+
 }  // namespace ml

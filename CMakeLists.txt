@@ -13,6 +13,7 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 add_library(ml_core
     src/common/shape_validation.cpp
     src/common/math_ops.cpp
+    src/common/statistics.cpp
 )
 
 target_include_directories(ml_core
