@@ -2,6 +2,7 @@
 #include "ml/common/types.hpp"
 #include "ml/common/math_ops.hpp"
 #include "ml/common/statistics.hpp"
+#include "ml/common/preprocessing.hpp"
 
 #include <cmath>
 #include <exception>
@@ -177,60 +178,6 @@ void assert_vector_almost_equal(
     }
 }
 
-void run_shape_validation_tests() {
-    std::cout << "[Phase 1.1] Shape validation tests\n\n";
-
-    expect_no_throw(
-        "validate_same_number_of_rows accepts matching X/y",
-        test_same_number_of_rows_accepts_matching_shapes
-    );
-
-    expect_invalid_argument(
-        "validate_same_number_of_rows rejects mismatched X/y",
-        test_same_number_of_rows_rejects_mismatched_shapes
-    );
-
-    expect_no_throw(
-        "validate_same_size accepts equal-size vectors",
-        test_same_size_accepts_equal_vectors
-    );
-
-    expect_invalid_argument(
-        "validate_same_size rejects unequal-size vectors",
-        test_same_size_rejects_unequal_vectors
-    );
-
-    expect_no_throw(
-        "validate_feature_count accepts matching X/weights",
-        test_feature_count_accepts_matching_shapes
-    );
-
-    expect_invalid_argument(
-        "validate_feature_count rejects mismatched X/weights",
-        test_feature_count_rejects_mismatched_shapes
-    );
-
-    expect_no_throw(
-        "validate_non_empty_matrix accepts non-empty matrix",
-        test_non_empty_matrix_accepts_valid_matrix
-    );
-
-    expect_invalid_argument(
-        "validate_non_empty_matrix rejects empty matrix",
-        test_non_empty_matrix_rejects_empty_matrix
-    );
-
-    expect_no_throw(
-        "validate_non_empty_vector accepts non-empty vector",
-        test_non_empty_vector_accepts_valid_vector
-    );
-
-    expect_invalid_argument(
-        "validate_non_empty_vector rejects empty vector",
-        test_non_empty_vector_rejects_empty_vector
-    );
-}
-
 void test_dot_product_computes_expected_scalar() {
     ml::Vector a(3);
     a << 1.0, 2.0, 3.0;
@@ -360,60 +307,6 @@ void test_mean_squared_error_rejects_mismatched_vectors() {
     static_cast<void>(ml::mean_squared_error(predictions, targets));
 }
 
-void run_math_ops_tests() {
-    std::cout << "\n[Phase 1.2] Matrix multiplication and math operations tests\n\n";
-
-    expect_no_throw(
-        "dot_product computes expected scalar",
-        test_dot_product_computes_expected_scalar
-    );
-
-    expect_invalid_argument(
-        "dot_product rejects mismatched vectors",
-        test_dot_product_rejects_mismatched_vectors
-    );
-
-    expect_no_throw(
-        "matvec computes Xw correctly",
-        test_matvec_computes_expected_vector
-    );
-
-    expect_invalid_argument(
-        "matvec rejects mismatched X/weights",
-        test_matvec_rejects_mismatched_shapes
-    );
-
-    expect_no_throw(
-        "linear_prediction computes Xw + b correctly",
-        test_linear_prediction_computes_expected_vector
-    );
-
-    expect_invalid_argument(
-        "linear_prediction rejects mismatched X/weights",
-        test_linear_prediction_rejects_mismatched_shapes
-    );
-
-    expect_no_throw(
-        "residuals computes predictions - targets",
-        test_residuals_computes_predictions_minus_targets
-    );
-
-    expect_invalid_argument(
-        "residuals rejects mismatched vectors",
-        test_residuals_rejects_mismatched_vectors
-    );
-
-    expect_no_throw(
-        "mean_squared_error computes expected value",
-        test_mean_squared_error_computes_expected_value
-    );
-
-    expect_invalid_argument(
-        "mean_squared_error rejects mismatched vectors",
-        test_mean_squared_error_rejects_mismatched_vectors
-    );
-}
-
 void test_mean_computes_expected_value() {
     ml::Vector values(4);
     values << 1.0, 2.0, 3.0, 4.0;
@@ -529,6 +422,222 @@ void test_column_variance_sample_rejects_single_row_matrix() {
     static_cast<void>(ml::column_variance_sample(X));
 }
 
+void assert_matrix_almost_equal(
+    const ml::Matrix& actual,
+    const ml::Matrix& expected,
+    const std::string& context
+) {
+    if (actual.rows() != expected.rows() || actual.cols() != expected.cols()) {
+        throw std::runtime_error(
+            context + ": matrix shapes differ. expected " +
+            std::to_string(expected.rows()) + "x" + std::to_string(expected.cols()) +
+            ", got " + std::to_string(actual.rows()) + "x" +
+            std::to_string(actual.cols())
+        );
+    }
+
+    for (Eigen::Index i = 0; i < actual.rows(); ++i) {
+        for (Eigen::Index j = 0; j < actual.cols(); ++j) {
+            if (!almost_equal(actual(i, j), expected(i, j))) {
+                throw std::runtime_error(
+                    context + ": matrices differ at (" + std::to_string(i) +
+                    ", " + std::to_string(j) + "). expected " +
+                    std::to_string(expected(i, j)) + ", got " +
+                    std::to_string(actual(i, j))
+                );
+            }
+        }
+    }
+}
+
+void test_standardize_columns_computes_expected_matrix() {
+    ml::Matrix X(3, 2);
+    X << 1.0, 10.0,
+         2.0, 20.0,
+         3.0, 30.0;
+
+    const ml::Matrix result = ml::standardize_columns(X);
+
+    const double z = std::sqrt(1.5);
+
+    ml::Matrix expected(3, 2);
+    expected << -z, -z,
+                  0.0, 0.0,
+                  z, z;
+
+    assert_matrix_almost_equal(result, expected, "test_standardize_columns_computes_expected_matrix");
+}
+
+void test_standardize_columns_handles_zero_variance_column() {
+    ml::Matrix X(3, 2);
+    X << 5.0, 1.0,
+         5.0, 2.0,
+         5.0, 3.0;
+
+    const ml::Matrix result = ml::standardize_columns(X);
+
+    const double z = std::sqrt(1.5);
+
+    ml::Matrix expected(3, 2);
+    expected << 0.0, -z,
+                 0.0, 0.0,
+                 0.0, z;
+
+    assert_matrix_almost_equal(result, expected, "test_standardize_columns_handles_zero_variance_column");
+}
+
+void test_standardize_columns_rejects_empty_matrix() {
+    ml::Matrix X(0, 0);
+
+    static_cast<void>(ml::standardize_columns(X));
+}
+
+void test_normalize_min_max_columns_computes_expected_matrix() {
+    ml::Matrix X(3, 2);
+    X << 1.0, 10.0,
+         2.0, 20.0,
+         3.0, 30.0;
+
+    const ml::Matrix result = ml::normalize_min_max_columns(X);
+
+    ml::Matrix expected(3, 2);
+    expected << 0.0, 0.0,
+                 0.5, 0.5,
+                 1.0, 1.0;
+
+    assert_matrix_almost_equal(result, expected, "test_normalize_min_max_columns_computes_expected_matrix");
+}
+
+void test_normalize_min_max_columns_handles_constant_column() {
+    ml::Matrix X(3, 2);
+    X << 5.0, 1.0,
+         5.0, 2.0,
+         5.0, 3.0;
+
+    const ml::Matrix result = ml::normalize_min_max_columns(X);
+
+    ml::Matrix expected(3, 2);
+    expected << 0.0, 0.0,
+                 0.0, 0.5,
+                 0.0, 1.0;
+
+    assert_matrix_almost_equal(result, expected, "test_normalize_min_max_columns_handles_constant_column");
+}
+
+void test_normalize_min_max_columns_rejects_empty_matrix() {
+    ml::Matrix X(0, 0);
+
+    static_cast<void>(ml::normalize_min_max_columns(X));
+}
+
+void run_shape_validation_tests() {
+    std::cout << "[Phase 1.1] Shape validation tests\n\n";
+
+    expect_no_throw(
+        "validate_same_number_of_rows accepts matching X/y",
+        test_same_number_of_rows_accepts_matching_shapes
+    );
+
+    expect_invalid_argument(
+        "validate_same_number_of_rows rejects mismatched X/y",
+        test_same_number_of_rows_rejects_mismatched_shapes
+    );
+
+    expect_no_throw(
+        "validate_same_size accepts equal-size vectors",
+        test_same_size_accepts_equal_vectors
+    );
+
+    expect_invalid_argument(
+        "validate_same_size rejects unequal-size vectors",
+        test_same_size_rejects_unequal_vectors
+    );
+
+    expect_no_throw(
+        "validate_feature_count accepts matching X/weights",
+        test_feature_count_accepts_matching_shapes
+    );
+
+    expect_invalid_argument(
+        "validate_feature_count rejects mismatched X/weights",
+        test_feature_count_rejects_mismatched_shapes
+    );
+
+    expect_no_throw(
+        "validate_non_empty_matrix accepts non-empty matrix",
+        test_non_empty_matrix_accepts_valid_matrix
+    );
+
+    expect_invalid_argument(
+        "validate_non_empty_matrix rejects empty matrix",
+        test_non_empty_matrix_rejects_empty_matrix
+    );
+
+    expect_no_throw(
+        "validate_non_empty_vector accepts non-empty vector",
+        test_non_empty_vector_accepts_valid_vector
+    );
+
+    expect_invalid_argument(
+        "validate_non_empty_vector rejects empty vector",
+        test_non_empty_vector_rejects_empty_vector
+    );
+}
+
+void run_math_ops_tests() {
+    std::cout << "\n[Phase 1.2] Matrix multiplication and math operations tests\n\n";
+
+    expect_no_throw(
+        "dot_product computes expected scalar",
+        test_dot_product_computes_expected_scalar
+    );
+
+    expect_invalid_argument(
+        "dot_product rejects mismatched vectors",
+        test_dot_product_rejects_mismatched_vectors
+    );
+
+    expect_no_throw(
+        "matvec computes Xw correctly",
+        test_matvec_computes_expected_vector
+    );
+
+    expect_invalid_argument(
+        "matvec rejects mismatched X/weights",
+        test_matvec_rejects_mismatched_shapes
+    );
+
+    expect_no_throw(
+        "linear_prediction computes Xw + b correctly",
+        test_linear_prediction_computes_expected_vector
+    );
+
+    expect_invalid_argument(
+        "linear_prediction rejects mismatched X/weights",
+        test_linear_prediction_rejects_mismatched_shapes
+    );
+
+    expect_no_throw(
+        "residuals computes predictions - targets",
+        test_residuals_computes_predictions_minus_targets
+    );
+
+    expect_invalid_argument(
+        "residuals rejects mismatched vectors",
+        test_residuals_rejects_mismatched_vectors
+    );
+
+    expect_no_throw(
+        "mean_squared_error computes expected value",
+        test_mean_squared_error_computes_expected_value
+    );
+
+    expect_invalid_argument(
+        "mean_squared_error rejects mismatched vectors",
+        test_mean_squared_error_rejects_mismatched_vectors
+    );
+}
+
 void run_statistics_tests() {
     std::cout << "\n[Phase 1.3] Descriptive statistics tests\n\n";
 
@@ -588,12 +697,47 @@ void run_statistics_tests() {
     );
 }
 
+void run_preprocessing_tests() {
+    std::cout << "\n[Phase 1.4] Preprocessing and feature scaling tests\n\n";
+
+    expect_no_throw(
+        "standardize_columns computes expected matrix",
+        test_standardize_columns_computes_expected_matrix
+    );
+
+    expect_no_throw(
+        "standardize_columns handles zero-variance column",
+        test_standardize_columns_handles_zero_variance_column
+    );
+
+    expect_invalid_argument(
+        "standardize_columns rejects empty matrix",
+        test_standardize_columns_rejects_empty_matrix
+    );
+
+    expect_no_throw(
+        "normalize_min_max_columns computes expected matrix",
+        test_normalize_min_max_columns_computes_expected_matrix
+    );
+
+    expect_no_throw(
+        "normalize_min_max_columns handles constant column",
+        test_normalize_min_max_columns_handles_constant_column
+    );
+
+    expect_invalid_argument(
+        "normalize_min_max_columns rejects empty matrix",
+        test_normalize_min_max_columns_rejects_empty_matrix
+    );
+}
+
 }  // namespace
 
 int main() {
     run_shape_validation_tests();
     run_math_ops_tests();
     run_statistics_tests();
-    
+    run_preprocessing_tests();
+
     return 0;
 }

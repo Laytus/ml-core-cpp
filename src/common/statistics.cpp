@@ -68,4 +68,29 @@ Vector column_variance_sample(const Matrix& X) {
     return variances;
 }
 
+Vector column_standard_deviation_population(const Matrix& X) {
+    validate_non_empty_matrix(X, "column_standard_deviation_population");
+
+    Vector std(X.cols());
+
+    for (Eigen::Index j = 0; j < X.cols(); ++j) {
+        std(j) = std::sqrt(variance_population(X.col(j)));
+    }
+    
+    return std;
+}
+
+Vector column_standard_deviation_sample(const Matrix& X) {
+    validate_non_empty_matrix(X, "column_standard_deviation_sample");
+    validate_min_matrix_rows(X, 2 ,"column_standard_deviation_sample");
+
+    Vector std(X.cols());
+
+    for (Eigen::Index j = 0; j < X.cols(); ++j) {
+        std(j) = std::sqrt(variance_sample(X.col(j)));
+    }
+    
+    return std;
+}
+
 }  // namespace ml

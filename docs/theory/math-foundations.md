@@ -598,3 +598,88 @@ Feature-wise statistics are used for:
 - PCA
 
 ML Core uses column-wise statistics by default because columns represent features.
+
+---
+
+## 9. Normalization and Standardization
+
+Machine Learning algorithms are often sensitive to feature scale.
+
+If one feature has values around \(1\) and another feature has values around \(100000\), optimization algorithms such as gradient descent may behave poorly.
+
+Feature scaling makes numerical features more comparable.
+
+### Standardization
+
+Standardization transforms a feature so that it has approximately zero mean and unit variance.
+
+For a feature column \(x_j\), the standardized value is:
+
+$$
+z_{ij} = \frac{x_{ij} - \mu_j}{\sigma_j}
+$$
+
+where:
+
+- \(x_{ij}\) is the value of feature \(j\) for sample \(i\)
+- \(\mu_j\) is the mean of feature \(j\)
+- \(\sigma_j\) is the standard deviation of feature \(j\)
+
+After standardization, each feature usually has:
+
+$$
+\mu \approx 0
+$$
+
+and:
+
+$$
+\sigma \approx 1
+$$
+
+This is useful for:
+
+- gradient descent
+- linear models
+- logistic regression
+- PCA
+- distance-based methods
+
+### Min-Max Normalization
+
+Min-max normalization rescales a feature to a fixed range, usually \([0, 1]\).
+
+For a feature column \(x_j\):
+
+$$
+x'_{ij} = \frac{x_{ij} - \min(x_j)}{\max(x_j) - \min(x_j)}
+$$
+
+This preserves the relative ordering of values while changing the scale.
+
+### Zero-Variance Features
+
+A feature has zero variance when all its values are identical.
+
+For example:
+
+$$
+x_j =
+\begin{bmatrix}
+5 \\
+5 \\
+5
+\end{bmatrix}
+$$
+
+In this case, the standard deviation is zero, so standardization would require division by zero.
+
+ML Core handles zero-variance columns explicitly.
+
+For this project, the default rule is:
+
+```txt
+If a feature has zero variance, its standardized values are set to 0.
+```
+
+This is equivalent to saying that the feature carries no variation across samples and should not affect scaled computations.

@@ -20,4 +20,8 @@ Vector column_variance_population(const Matrix& X);
 
 Vector column_variance_sample(const Matrix& X);
 
+Vector column_standard_deviation_population(const Matrix& X);
+
+Vector column_standard_deviation_sample(const Matrix& X);
+
 }  // namespace ml
