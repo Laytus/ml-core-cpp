@@ -38,6 +38,12 @@ target_link_libraries(ml_core_app
 
 add_executable(ml_core_tests
     app/test_runner.cpp
+    experiments/phase-1-math-sanity/phase1_math_sanity.cpp
+)
+
+target_include_directories(ml_core_tests
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-1-math-sanity
 )
 
 target_link_libraries(ml_core_tests

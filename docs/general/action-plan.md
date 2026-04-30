@@ -193,34 +193,38 @@ Do this once and do it correctly. Any ambiguity here will multiply later.
 
 ## Phase 1 – Math and Statistical Foundations
 
-**Goal:** Build the real mathematical and statistical base missing from the previous repo.
+**Goal:** Build the real mathematical and statistical base required before implementing data pipelines and ML models.
 
 **Level:** A
 
 **Estimated effort:** 12–18 hours
+
+**Status:** Complete
 
 ### Why this phase exists
 This phase is the minimum serious base required before implementing real ML models.
 
 Without it, later work becomes procedural instead of grounded.
 
+Phase 1 establishes the shared mathematical conventions, validation layer, Eigen usage patterns, reusable math operations, descriptive statistics, and feature scaling utilities that later phases will depend on.
+
 ### Prerequisites
 - Phase 0 complete
 
 ### Detailed tasks
-- [ ] Write theory notes for vector and matrix fundamentals
-- [ ] Write theory notes for matrix multiplication and geometric interpretation
-- [ ] Write theory notes for derivatives, gradients, and partial derivatives
-- [ ] Write theory notes for chain rule and why it matters for trainable models
-- [ ] Write theory notes for expectation, variance, covariance, and distributions intuition
-- [ ] Write theory notes for train / validation / test roles
-- [ ] Write theory notes for:
+- [x] Write theory notes for vector and matrix fundamentals
+- [x] Write theory notes for matrix multiplication and geometric interpretation
+- [x] Write theory notes for derivatives, gradients, and partial derivatives
+- [x] Write theory notes for chain rule and why it matters for trainable models
+- [x] Write theory notes for expectation, variance, covariance, and distributions intuition
+- [x] Write theory notes for train / validation / test roles
+- [x] Write theory notes for:
   - underfitting
   - overfitting
   - bias
   - variance
-- [ ] Implement only minimal math helpers that will be reused later and are not already handled naturally by Eigen
-- [ ] Create one concise validation/demo layer showing:
+- [x] Implement only minimal math helpers that will be reused later and are not already handled naturally by Eigen
+- [x] Create one concise validation/demo layer showing:
   - vectorized expressions
   - gradient interpretation
   - covariance / variance intuition if useful
@@ -244,9 +248,9 @@ Without it, later work becomes procedural instead of grounded.
 - one or more small sanity demos for key ideas
 
 ### Exit criteria
-- [ ] You can explain gradients, vectorized model form, and bias/variance clearly without ambiguity
-- [ ] No important later phase depends on undefined math/stat terms
-- [ ] Only necessary utilities were implemented; no unnecessary matrix reimplementation exists
+- [x] You can explain gradients, vectorized model form, and bias/variance clearly without ambiguity
+- [x] No important later phase depends on undefined math/stat terms
+- [x] Only necessary utilities were implemented; no unnecessary matrix reimplementation exists
 
 ### Optimization note
 Keep code light here. The real value of this phase is conceptual clarity plus a few reusable helpers.

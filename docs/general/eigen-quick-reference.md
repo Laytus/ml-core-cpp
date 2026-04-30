@@ -1,10 +1,10 @@
 # Eigen Quick Reference for ML Core
 
-This document summarizes the basic Eigen usage needed for ML Core.
+This document summarizes the Eigen features used in ML Core.
 
 ML Core uses Eigen for linear algebra. We do not build our own matrix library.
 
-Project aliases are defined in:
+The project aliases are defined in:
 
 ```cpp
 #include "ml/common/types.hpp"
@@ -16,10 +16,10 @@ namespace ml {
 using Matrix = Eigen::MatrixXd;
 using Vector = Eigen::VectorXd;
 
-}
+} // namespace ml
 ```
 
-So in ML Core, prefer:
+So, in ML Core, prefer:
 
 ```cpp
 ml::Matrix X;
@@ -70,6 +70,7 @@ predictions
 weights
 gradients
 residuals
+statistics
 ```
 
 ---
@@ -126,12 +127,6 @@ $$
 X.rows();
 ```
 
-Example:
-
-```cpp
-std::cout << X.rows() << "\n";
-```
-
 ### Number of columns
 
 ```cpp
@@ -156,21 +151,15 @@ For a `3 x 2` matrix, this returns `6`.
 
 ## 4. Accessing Elements
 
+Eigen uses zero-based indexing.
+
 ### Matrix element access
 
 ```cpp
 double value = X(0, 1);
 ```
 
-Eigen uses zero-based indexing.
-
-So:
-
-```cpp
-X(0, 1)
-```
-
-means:
+This means:
 
 ```txt
 row 0, column 1
@@ -188,13 +177,11 @@ or:
 double value = y[0];
 ```
 
-For consistency, prefer:
+For consistency in mathematical code, prefer:
 
 ```cpp
-y(i)
+y(i);
 ```
-
-in mathematical code.
 
 ---
 
@@ -226,7 +213,7 @@ X.col(0) << 1.0, 2.0, 3.0;
 
 ---
 
-## 6. Basic Operations
+## 6. Matrix and Vector Operations
 
 ### Matrix-vector multiplication
 
@@ -248,32 +235,6 @@ X * weights = m
 ```
 
 This is the base operation for linear models.
-
-### Add scalar bias to all predictions
-
-```cpp
-ml::Vector predictions = X * weights;
-predictions.array() += bias;
-```
-
-Why `.array()`?
-
-Eigen distinguishes between:
-
-```txt
-linear algebra operations
-element-wise array operations
-```
-
-Adding a scalar to every vector element is element-wise, so we use:
-
-```cpp
-predictions.array() += bias;
-```
-
----
-
-## 7. Vector Operations
 
 ### Dot product
 
@@ -311,13 +272,9 @@ $$
 a^\top a
 $$
 
-Useful for squared error losses.
+This is useful for squared error losses.
 
----
-
-## 8. Transpose
-
-### Matrix transpose
+### Transpose
 
 ```cpp
 ml::Matrix Xt = X.transpose();
@@ -335,7 +292,7 @@ then:
 X.transpose() = n x m
 ```
 
-### Common ML expression
+A common ML expression is:
 
 ```cpp
 ml::Vector gradient = X.transpose() * residuals;
@@ -344,8 +301,8 @@ ml::Vector gradient = X.transpose() * residuals;
 If:
 
 ```txt
-X          = m x n
-residuals  = m
+X         = m x n
+residuals = m
 ```
 
 then:
@@ -354,13 +311,29 @@ then:
 X.transpose() * residuals = n
 ```
 
-This is common in gradient computation for linear regression.
-
 ---
 
-## 9. Element-wise Operations with `.array()`
+## 7. Element-wise Operations with `.array()`
 
-Eigen separates matrix algebra from element-wise operations.
+Eigen separates:
+
+```txt
+.matrix() mode = linear algebra operations
+.array() mode  = element-wise operations
+```
+
+### Add scalar to every element
+
+```cpp
+predictions.array() += bias;
+```
+
+This is useful for:
+
+```cpp
+ml::Vector predictions = X * weights;
+predictions.array() += bias;
+```
 
 ### Element-wise square
 
@@ -380,30 +353,55 @@ ml::Vector result = a.array() * b.array();
 ml::Vector result = a.array() / b.array();
 ```
 
-### Add scalar to every element
+### Convert array expression back to matrix/vector mode
 
 ```cpp
-ml::Vector result = a.array() + 1.0;
+ml::Vector result = some_array_expression.matrix();
 ```
 
-### Convert back to matrix/vector expression
-
-Usually Eigen handles this automatically:
+Example:
 
 ```cpp
-ml::Vector squared = residuals.array().square();
+ml::Vector squared = residuals.array().square().matrix();
 ```
 
-But conceptually:
-
-```txt
-.array()  = element-wise mode
-.matrix() = linear algebra mode
-```
+In many cases Eigen can infer the conversion, but using `.matrix()` can make the intent explicit.
 
 ---
 
-## 10. Reductions
+## 8. Coefficient-wise Matrix Operations
+
+For element-wise operations between matrices or vectors, Eigen also provides `cwise...` methods.
+
+### Coefficient-wise division
+
+```cpp
+ml::Matrix result = A.cwiseQuotient(B);
+```
+
+This computes:
+
+```txt
+result(i, j) = A(i, j) / B(i, j)
+```
+
+### Coefficient-wise product
+
+```cpp
+ml::Matrix result = A.cwiseProduct(B);
+```
+
+This computes:
+
+```txt
+result(i, j) = A(i, j) * B(i, j)
+```
+
+These are useful when operating on two matrices of the same shape.
+
+---
+
+## 9. Reductions
 
 ### Sum
 
@@ -433,6 +431,55 @@ These are useful for statistics and metrics.
 
 ---
 
+## 10. Column-wise Operations
+
+ML Core uses columns as features, so column-wise operations are important.
+
+### Column means
+
+```cpp
+ml::Vector means = X.colwise().mean().transpose();
+```
+
+`X.colwise().mean()` gives one value per column. Transpose it into a column vector if you want to store it as `ml::Vector`.
+
+### Column minimum values
+
+```cpp
+ml::Vector mins = X.colwise().minCoeff().transpose();
+```
+
+### Column maximum values
+
+```cpp
+ml::Vector maxs = X.colwise().maxCoeff().transpose();
+```
+
+### Center a matrix column-wise
+
+If `means` is an `ml::Vector` of size `X.cols()`:
+
+```cpp
+ml::Matrix centered = X.rowwise() - means.transpose();
+```
+
+This subtracts the feature mean from every row.
+
+### Divide each column by a scale vector
+
+If `scales` is an `ml::Vector` of size `X.cols()`:
+
+```cpp
+ml::Matrix scaled =
+    (centered.array().rowwise() / scales.transpose().array()).matrix();
+```
+
+This divides each column by the corresponding scale value.
+
+This pattern is useful for standardization.
+
+---
+
 ## 11. Creating Special Matrices and Vectors
 
 ### Zero vector
@@ -447,6 +494,12 @@ ml::Vector v = ml::Vector::Zero(5);
 ml::Vector v = ml::Vector::Ones(5);
 ```
 
+### Constant vector
+
+```cpp
+ml::Vector v = ml::Vector::Constant(5, 3.14);
+```
+
 ### Zero matrix
 
 ```cpp
@@ -457,6 +510,12 @@ ml::Matrix X = ml::Matrix::Zero(3, 2);
 
 ```cpp
 ml::Matrix X = ml::Matrix::Ones(3, 2);
+```
+
+### Constant matrix
+
+```cpp
+ml::Matrix X = ml::Matrix::Constant(3, 2, 3.14);
 ```
 
 ### Identity matrix
@@ -541,6 +600,33 @@ ml::Vector gradient_w =
 double gradient_b =
     (2.0 / static_cast<double>(X.rows())) * residuals.sum();
 ```
+
+### Feature standardization
+
+```cpp
+ml::Vector means = X.colwise().mean().transpose();
+ml::Vector stds = /* one standard deviation per column */;
+
+ml::Matrix centered = X.rowwise() - means.transpose();
+
+ml::Matrix standardized =
+    (centered.array().rowwise() / stds.transpose().array()).matrix();
+```
+
+### Min-max normalization
+
+```cpp
+ml::Vector mins = X.colwise().minCoeff().transpose();
+ml::Vector maxs = X.colwise().maxCoeff().transpose();
+ml::Vector ranges = maxs - mins;
+
+ml::Matrix centered = X.rowwise() - mins.transpose();
+
+ml::Matrix normalized =
+    (centered.array().rowwise() / ranges.transpose().array()).matrix();
+```
+
+For zero standard deviations or zero ranges, replace the scale value with `1.0` before dividing. If the column is constant, centering already produces zeros.
 
 ---
 
@@ -677,7 +763,25 @@ X(0, 0)
 
 is the first row and first column.
 
-### Mistake 5: Not validating shapes before model operations
+### Mistake 5: Confusing column vectors and row vectors
+
+`ml::Vector` is a column vector.
+
+For row-wise broadcasting, transpose it:
+
+```cpp
+X.rowwise() - means.transpose();
+```
+
+### Mistake 6: Mixing `.array()` and `.matrix()` modes accidentally
+
+If you use `.array()` for element-wise operations, convert back with `.matrix()` when returning or assigning to a matrix/vector if needed:
+
+```cpp
+return some_array_expression.matrix();
+```
+
+### Mistake 7: Not validating shapes before model operations
 
 Before fitting or predicting, validate:
 
