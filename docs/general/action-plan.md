@@ -341,24 +341,23 @@ This is where the project shifts from introductory mechanics to real model struc
 - Phases 0–2 complete
 
 ### Detailed tasks
-- [ ] Write theory for multivariate linear regression
-- [ ] Write theory for linear models as matrix operations
-- [ ] Write theory for MSE in vectorized form
-- [ ] Write theory for normal equation concept and why it matters even if not the main training route
-- [ ] Write theory for regularization:
+- [x] Write theory for multivariate linear regression
+- [x] Write theory for linear models as matrix operations
+- [x] Write theory for MSE in vectorized form
+- [x] Write theory for normal equation concept and why it matters even if not the main training route
+- [x] Write theory for regularization:
   - Ridge in detail
   - Lasso conceptually
-- [ ] Define reusable linear-model interface decisions
-- [ ] Implement multivariate linear regression with Eigen
-- [ ] Implement vectorized prediction
-- [ ] Implement vectorized MSE
-- [ ] Implement training through the project’s optimization framework
-- [ ] Implement Ridge regularization support
-- [ ] Add experiments comparing:
+- [x] Define reusable linear-model interface decisions
+- [x] Implement multivariate linear regression with Eigen
+- [x] Implement vectorized prediction
+- [x] Implement vectorized MSE
+- [x] Implement Ridge regularization support
+- [x] Add experiments comparing:
   - unregularized vs Ridge
   - scaled vs unscaled data
   - different learning rates / convergence behavior
-- [ ] Add interpretation notes for residual behavior
+- [x] Add interpretation notes for residual behavior
 
 ### Expected files / deliverables
 - theory doc:
@@ -380,10 +379,10 @@ This is where the project shifts from introductory mechanics to real model struc
 - experiments and summaries
 
 ### Exit criteria
-- [ ] The model is multivariate and vectorized
-- [ ] Regularization is integrated cleanly, not bolted on later
-- [ ] The model fits naturally into the evaluation pipeline
-- [ ] At least one experiment compares regularized and unregularized behavior
+- [x] The model is multivariate and vectorized
+- [x] Regularization is integrated cleanly, not bolted on later
+- [x] The model fits naturally into the evaluation pipeline
+- [x] At least one experiment compares regularized and unregularized behavior
 
 ### Optimization note
 Do not build a second temporary linear-regression path. Build the serious one directly.

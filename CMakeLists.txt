@@ -24,6 +24,7 @@ add_library(ml_core
     src/common/evaluation.cpp
     src/common/evaluation_harness.cpp
     src/common/experiment_summary.cpp
+    src/linear_models/linear_regression.cpp
 )
 
 target_include_directories(ml_core
@@ -50,6 +51,7 @@ add_executable(ml_core_tests
     experiments/common/manual_test_utils.cpp
     experiments/phase-1-math-sanity/phase1_math_sanity.cpp
     experiments/phase-2-evaluation-methodology/phase2_evaluation_sanity.cpp
+    experiments/phase-3-linear-models/phase3_linear_models_sanity.cpp
 )
 
 target_include_directories(ml_core_tests
@@ -57,6 +59,7 @@ target_include_directories(ml_core_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/common
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-1-math-sanity
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-2-evaluation-methodology
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-3-linear-models
 )
 
 target_link_libraries(ml_core_tests
