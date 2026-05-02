@@ -15,6 +15,15 @@ add_library(ml_core
     src/common/math_ops.cpp
     src/common/statistics.cpp
     src/common/preprocessing.cpp
+    src/common/data_split.cpp
+    src/common/cross_validation.cpp
+    src/common/preprocessing_pipeline.cpp
+    src/common/numeric_utils.cpp
+    src/common/regression_metrics.cpp
+    src/common/baselines.cpp
+    src/common/evaluation.cpp
+    src/common/evaluation_harness.cpp
+    src/common/experiment_summary.cpp
 )
 
 target_include_directories(ml_core
@@ -38,12 +47,16 @@ target_link_libraries(ml_core_app
 
 add_executable(ml_core_tests
     app/test_runner.cpp
+    experiments/common/manual_test_utils.cpp
     experiments/phase-1-math-sanity/phase1_math_sanity.cpp
+    experiments/phase-2-evaluation-methodology/phase2_evaluation_sanity.cpp
 )
 
 target_include_directories(ml_core_tests
     PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/common
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-1-math-sanity
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-2-evaluation-methodology
 )
 
 target_link_libraries(ml_core_tests

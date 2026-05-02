@@ -1,6 +1,7 @@
 #include "ml/common/preprocessing.hpp"
 #include "ml/common/shape_validation.hpp"
 #include "ml/common/statistics.hpp"
+#include "ml/common/numeric_utils.hpp"
 
 #include <cmath>
 
@@ -10,9 +11,9 @@ Matrix standardize_columns(const Matrix& X) {
     validate_non_empty_matrix(X, "standardize_columns");
 
     const Vector means = column_means(X);
-
     Vector stds = column_standard_deviation_population(X);
-    stds = (stds.array() < 1e-10).select(1.0, stds.array()).matrix();
+    
+    stds = replace_near_zero_with_one(stds).matrix();
 
     const Matrix centered = X.rowwise() - means.transpose();
 
@@ -26,7 +27,7 @@ Matrix normalize_min_max_columns(const Matrix& X) {
     Vector maxs = X.colwise().maxCoeff().transpose();
     Vector ranges = maxs - mins;
 
-    ranges = (ranges.array() < 1e-10).select(1.0, ranges.array());
+    ranges = replace_near_zero_with_one(ranges);
 
     const Matrix centered = X.rowwise() - mins.transpose();
 

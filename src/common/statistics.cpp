@@ -93,4 +93,16 @@ Vector column_standard_deviation_sample(const Matrix& X) {
     return std;
 }
 
+Vector column_mins(const Matrix& X) {
+    validate_non_empty_matrix(X, "column_mins");
+
+    return X.colwise().minCoeff().transpose();
+}
+
+Vector column_maxs(const Matrix& X) {
+    validate_non_empty_matrix(X, "column_maxs");
+
+    return X.colwise().maxCoeff().transpose();
+}
+
 }  // namespace ml

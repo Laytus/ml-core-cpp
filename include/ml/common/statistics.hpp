@@ -24,4 +24,8 @@ Vector column_standard_deviation_population(const Matrix& X);
 
 Vector column_standard_deviation_sample(const Matrix& X);
 
+Vector column_mins(const Matrix& X);
+
+Vector column_maxs(const Matrix& X);
+
 }  // namespace ml

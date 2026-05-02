@@ -275,19 +275,19 @@ This phase defines the environment inside which all later models should be studi
 - Phase 1 complete
 
 ### Detailed tasks
-- [ ] Define dataset abstractions for supervised learning
-- [ ] Implement train / validation / test split utilities
-- [ ] Decide on deterministic vs shuffled split strategy and expose both where useful
-- [ ] Implement k-fold cross-validation utilities
-- [ ] Define preprocessing pipeline rules so transforms are fitted only on training data
-- [ ] Add explicit theory and examples for data leakage
-- [ ] Define baseline evaluation flow:
+- [x] Define dataset abstractions for supervised learning
+- [x] Implement train / validation / test split utilities
+- [x] Decide on deterministic vs shuffled split strategy and expose both where useful
+- [x] Implement k-fold cross-validation utilities
+- [x] Define preprocessing pipeline rules so transforms are fitted only on training data
+- [x] Add explicit theory and examples for data leakage
+- [x] Define baseline evaluation flow:
   - baseline predictor
   - trained predictor
   - metric comparison
-- [ ] Build a reusable evaluation harness structure that later models can plug into
-- [ ] Define how model metrics and experiment summaries are exported
-- [ ] Add theory notes on proper evaluation discipline
+- [x] Build a reusable evaluation harness structure that later models can plug into
+- [x] Define how model metrics and experiment summaries are exported
+- [x] Add theory notes on proper evaluation discipline
 
 ### Expected files / deliverables
 - theory doc:
@@ -314,10 +314,10 @@ This phase defines the environment inside which all later models should be studi
 - leakage documentation
 
 ### Exit criteria
-- [ ] A later model can be inserted into a reusable train/validate/test workflow without redesign
-- [ ] Cross-validation exists as a reusable utility
-- [ ] Leakage prevention rules are explicit in both code structure and docs
-- [ ] Baseline-vs-model evaluation is clearly defined
+- [x] A later model can be inserted into a reusable train/validate/test workflow without redesign
+- [x] Cross-validation exists as a reusable utility
+- [x] Leakage prevention rules are explicit in both code structure and docs
+- [x] Baseline-vs-model evaluation is clearly defined
 
 ### Optimization note
 This phase should be finished before any “serious” model implementation begins.
