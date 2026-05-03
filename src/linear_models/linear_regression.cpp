@@ -41,13 +41,29 @@ void validate_options(const LinearRegressionOptions& options) {
         );
     }
 
-    if (options.regularization.type != RegularizationType::None &&
+    if (
+        options.regularization.type != RegularizationType::None &&
         options.regularization.type != RegularizationType::Ridge 
     ) {
         throw std::invalid_argument(
             "LinearRegression::fit: regularization type must be None or Ridge"
         );
     }
+}
+
+double mse_with_regularization(
+    const Vector& predictions,
+    const Vector& targets,
+    const Vector& weights,
+    const RegularizationConfig& regularization
+) {
+    double loss = mean_squared_error(predictions, targets);
+            
+    if (regularization.is_ridge()) {
+        loss += regularization.lambda * weights.squaredNorm();
+    }
+
+    return loss;
 }
 
 }  // namespace
@@ -78,15 +94,18 @@ void LinearRegression::fit (
     for (std::size_t iteration = 0; iteration < options_.max_iterations; ++iteration) {
         const Vector predictions = linear_prediction(X, weights_, bias_);
         const Vector residual_vector = residuals(predictions, y);
-    
-        double loss = mean_squared_error(predictions, y);
+
+        double loss = mse_with_regularization(
+            predictions,
+            y,
+            weights_,
+            options_.regularization
+        );
     
         Vector gradient_w = (2.0 / num_samples) * (X.transpose() * residual_vector);
         const double gradient_b = (2.0 / num_samples) * residual_vector.sum();
     
         if (options_.regularization.is_ridge()) {
-            loss += options_.regularization.lambda * weights_.squaredNorm();
-    
             gradient_w += 2.0 * options_.regularization.lambda * weights_;
         }
     

@@ -2,6 +2,7 @@
 
 #include "ml/common/evaluation.hpp"
 #include "ml/common/types.hpp"
+#include "ml/common/classification_evaluation.hpp"
 
 #include <string>
 
@@ -28,6 +29,26 @@ struct RegressionEvaluationReport {
 
 RegressionEvaluationReport run_regression_evaluation(
     const RegressionEvaluationInput& input
+);
+
+struct BinaryClassificationEvaluationInput {
+    Vector targets;
+    Vector probabilities;
+    Vector predicted_classes;
+    std::string model_name;
+    double threshold{0.5};
+};
+
+struct BinaryClassificationEvaluationReport {
+    std::string model_name;
+    double threshold;
+    ClassificationEvaluation evaluation;
+
+    bool has_perfect_accuracy() const;
+};
+
+BinaryClassificationEvaluationReport run_binary_classification_evaluation(
+    const BinaryClassificationEvaluationInput& input
 );
 
 }  // namespace ml

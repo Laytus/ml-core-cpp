@@ -1,5 +1,7 @@
 #include "ml/common/evaluation_harness.hpp"
 
+#include "ml/common/classification_evaluation.hpp"
+#include "ml/common/classification_utils.hpp"
 #include "ml/common/evaluation.hpp"
 #include "ml/common/shape_validation.hpp"
 
@@ -39,7 +41,7 @@ RegressionEvaluationReport run_regression_evaluation(
         );
     }
 
-    BaselineComparison comparison = compare_regression_to_baseline(
+    const BaselineComparison comparison = compare_regression_to_baseline(
         input.baseline_predictions,
         input.model_predictions,
         input.targets
@@ -66,6 +68,54 @@ bool RegressionEvaluationReport::model_beats_baseline_mae() const {
 
 bool RegressionEvaluationReport::model_beats_baseline_r2() const {
     return comparison.model.r2 > comparison.baseline.r2;
+}
+
+BinaryClassificationEvaluationReport run_binary_classification_evaluation(
+    const BinaryClassificationEvaluationInput& input
+) {
+    validate_non_empty_vector(input.targets, "run_binary_classification_evaluation");
+    validate_non_empty_vector(input.probabilities, "run_binary_classification_evaluation");
+    validate_binary_targets(input.predicted_classes, "run_binary_classification_evaluation");
+    validate_binary_targets(input.targets, "run_binary_classification_evaluation");
+
+    validate_same_size(
+        input.probabilities,
+        input.targets,
+        "run_binary_classification_evaluation probabilities/targets"
+    );
+
+    validate_same_size(
+        input.predicted_classes,
+        input.targets,
+        "run_binary_classification_evaluation predicted_classes/targets"
+    );
+
+    validate_probability_threshold(
+        input.threshold,
+        "run_binary_classification_evaluation"
+    );
+
+    if (input.model_name.empty()) {
+        throw std::invalid_argument(
+            "run_binary_classification_evaluation: model_name must not be empty"
+        );
+    }
+
+    const ClassificationEvaluation evaluation = evaluate_binary_classification(
+        input.probabilities,
+        input.predicted_classes,
+        input.targets
+    );
+
+    return BinaryClassificationEvaluationReport{
+        input.model_name,
+        input.threshold,
+        evaluation
+    };
+}
+
+bool BinaryClassificationEvaluationReport::has_perfect_accuracy() const {
+    return evaluation.accuracy == 1.0;
 }
 
 }  // namespace ml

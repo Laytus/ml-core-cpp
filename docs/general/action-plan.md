@@ -389,69 +389,118 @@ Do not build a second temporary linear-regression path. Build the serious one di
 
 ---
 
-## Phase 4 – Logistic Regression, Properly
+## Phase 4 – Linear Classification Models
 
-**Goal:** Implement serious classification foundations in vectorized form.
+**Goal:** Implement serious classification foundations in vectorized form, covering both binary logistic regression and multiclass softmax regression.
 
 **Level:** A
 
-**Estimated effort:** 12–18 hours
+**Estimated effort:** 18–28 hours
 
 ### Why this phase exists
 This is the first real classification foundation phase and one of the key bridges to DL.
 
-It introduces logits, probabilities, cross-entropy, thresholds, and class-boundary thinking in a serious form.
+It introduces logits, probabilities, cross-entropy, thresholds, decision boundaries, class-boundary thinking, and multiclass probability distributions in a serious form.
+
+This phase is divided into two parts:
+- **Phase 4A – Binary Logistic Regression**
+- **Phase 4B – Softmax Regression for Multiclass Classification**
+
+Binary logistic regression introduces the core classification pattern:
+
+```txt
+linear score → probability → cross-entropy → class prediction
+```
+
+Softmax regression extends that same pattern to multiple classes:
+
+```txt
+class logits → softmax probabilities → categorical cross-entropy → argmax prediction
+```
 
 ### Prerequisites
 - Phases 0–3 complete
 
 ### Detailed tasks
-- [ ] Write theory for multivariate logistic regression
-- [ ] Write theory for logits and sigmoid interpretation
-- [ ] Write theory for binary cross-entropy in vectorized form
-- [ ] Write theory for thresholding and decision boundaries
-- [ ] Write theory for regularization in classification
-- [ ] Define reusable logistic-model interface decisions
-- [ ] Implement vectorized logistic regression with Eigen
-- [ ] Implement logits, probabilities, and class predictions cleanly
-- [ ] Implement vectorized BCE
-- [ ] Integrate regularization support
-- [ ] Integrate with evaluation harness and metrics
-- [ ] Add experiments for:
+
+#### Phase 4A – Binary Logistic Regression
+- [x] Write theory for multivariate logistic regression
+- [x] Write theory for logits and sigmoid interpretation
+- [x] Write theory for binary cross-entropy in vectorized form
+- [x] Write theory for thresholding and decision boundaries
+- [x] Write theory for regularization in classification
+- [x] Define reusable logistic-model interface decisions
+- [x] Implement vectorized logistic regression with Eigen
+- [x] Implement logits, probabilities, and class predictions cleanly
+- [x] Implement vectorized BCE
+- [x] Integrate regularization support
+- [x] Integrate with evaluation harness and metrics
+- [x] Add experiments for:
   - threshold variation
   - regularization variation
   - class-boundary interpretation
   - evaluation across multiple metrics
-- [ ] Add softmax/multiclass theory bridge, even if full implementation comes later or stays lighter
+
+#### Phase 4B – Softmax Regression for Multiclass Classification
+- [x] Add softmax/multiclass theory bridge
+- [x] Define reusable softmax-model interface decisions
+- [x] Implement softmax regression for multiclass classification
+- [x] Implement vectorized softmax with numerical stability
+- [x] Implement categorical cross-entropy
+- [x] Implement multiclass prediction with argmax
+- [x] Add multiclass classification metrics and evaluation support
+- [x] Add experiments for multiclass classification behavior
 
 ### Expected files / deliverables
 - theory doc:
   - `docs/theory/logistic-regression.md`
-- model headers and sources:
+- binary classification model headers and sources:
   - `include/ml/linear_models/logistic_regression.hpp`
   - `src/linear_models/logistic_regression.cpp`
-- optional classification helpers:
+- multiclass classification model headers and sources:
+  - `include/ml/linear_models/softmax_regression.hpp`
+  - `src/linear_models/softmax_regression.cpp`
+- binary classification helpers:
   - `include/ml/common/classification_utils.hpp`
   - `src/common/classification_utils.cpp`
+  - `include/ml/common/classification_metrics.hpp`
+  - `src/common/classification_metrics.cpp`
+  - `include/ml/common/classification_evaluation.hpp`
+  - `src/common/classification_evaluation.cpp`
+- multiclass classification helpers:
+  - `include/ml/common/multiclass_metrics.hpp`
+  - `src/common/multiclass_metrics.cpp`
 - experiment folders:
   - `experiments/phase-4-logistic-regression/`
   - `outputs/phase-4-logistic-regression/`
 
 ### Concrete outputs
-- multivariate logistic regression implementation
-- probability and class-prediction pipeline
+- multivariate binary logistic regression implementation
+- probability and binary class-prediction pipeline
 - BCE implementation
-- regularization integration
+- binary classification metrics and evaluation harness integration
 - threshold/evaluation experiments
+- softmax regression implementation
+- stable row-wise softmax
+- categorical cross-entropy implementation
+- multiclass argmax prediction
+- multiclass classification metrics and evaluation support
+- multiclass classification experiments
 
 ### Exit criteria
-- [ ] Logistic regression is multivariate and vectorized
-- [ ] Threshold analysis is explicit rather than hardcoded and forgotten
-- [ ] The model integrates naturally with the evaluation framework
-- [ ] The docs clearly connect logits, BCE, and decision boundaries
+- [x] Binary logistic regression is multivariate and vectorized
+- [x] Threshold analysis is explicit rather than hardcoded and forgotten
+- [x] The binary model integrates naturally with the evaluation framework
+- [x] The docs clearly connect logits, BCE, and decision boundaries
+- [x] Softmax regression works as a vectorized multiclass classifier
+- [x] Multiclass cross-entropy and prediction behavior are documented and tested
+- [x] Multiclass evaluation metrics are reusable and tested
+- [x] At least one experiment demonstrates multiclass classification behavior
 
 ### Optimization note
 This phase should be built as the real classification foundation, not as a minimal extension of the previous project.
+
+Binary logistic regression and softmax regression should share concepts and utilities where appropriate, but their model APIs should remain explicit and easy to reason about.
 
 ---
 
@@ -472,11 +521,11 @@ It should therefore exist as a reusable and serious part of the project rather t
 - Phases 0–4 complete
 
 ### Detailed tasks
-- [ ] Write theory for batch GD, SGD, and mini-batch GD
-- [ ] Write theory for momentum and why it helps
-- [ ] Write theory for conditioning, scaling, and optimization geometry
-- [ ] Write theory for initialization sensitivity and convergence behavior
-- [ ] Write theory bridge for adaptive optimizers conceptually
+- [x] Write theory for batch GD, SGD, and mini-batch GD
+- [x] Write theory for momentum and why it helps
+- [x] Write theory for conditioning, scaling, and optimization geometry
+- [x] Write theory for initialization sensitivity and convergence behavior
+- [x] Write theory bridge for adaptive optimizers conceptually
 - [ ] Design reusable optimizer interfaces that can support multiple trainable models
 - [ ] Refactor any model-specific training logic into reusable optimizer-aware structures
 - [ ] Implement batch GD
@@ -861,7 +910,7 @@ Follow the phases in this order:
 2. Phase 1 – Math and Statistical Foundations
 3. Phase 2 – Data Pipeline and Evaluation Methodology
 4. Phase 3 – Linear Models, Properly
-5. Phase 4 – Logistic Regression, Properly
+5. Phase 4 – Linear Classification Models
 6. Phase 5 – Optimization for ML
 7. Phase 6 – Trees and Ensembles
 8. Phase 7 – Distance and Kernel Thinking
@@ -929,7 +978,7 @@ This is the project meant to build the actual base layer that was still missing.
 | 1. Math and Statistical Foundations | A | 12–18 | Minimal reusable helpers only | Math/stat foundations docs | No undefined core math/stat concepts remain |
 | 2. Data Pipeline and Evaluation Methodology | A | 10–16 | Splits, CV, evaluation harness | Evaluation/leakage docs | Real models can be trained/evaluated consistently |
 | 3. Linear Models, Properly | A | 12–18 | Multivariate linear regression, Ridge | Linear-model theory doc | Real vectorized linear model works in pipeline |
-| 4. Logistic Regression, Properly | A | 12–18 | Multivariate logistic regression, BCE, threshold experiments | Logistic-regression theory doc | Real vectorized classifier works in pipeline |
+| 4. Linear Classification Models | A | 18–28 | Logistic regression, softmax regression, BCE, categorical CE, classification metrics | Logistic/softmax theory doc | Real vectorized binary and multiclass classifiers work in pipeline |
 | 5. Optimization for ML | A | 14–22 | Batch/SGD/mini-batch/momentum framework | Optimization theory doc | Shared optimizer logic works across models |
 | 6. Trees and Ensembles | B | 16–24 | Simple recursive Decision Tree | Trees/ensembles theory doc | Real tree builder works and ensembles are conceptually covered |
 | 7. Distance and Kernel Thinking | B | 8–14 | Upgraded k-NN experiments | Distance/kernel theory doc | Distance, margins, and kernels are conceptually integrated |

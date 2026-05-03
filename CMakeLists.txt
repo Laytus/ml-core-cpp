@@ -25,6 +25,12 @@ add_library(ml_core
     src/common/evaluation_harness.cpp
     src/common/experiment_summary.cpp
     src/linear_models/linear_regression.cpp
+    src/common/classification_utils.cpp
+    src/common/classification_metrics.cpp
+    src/linear_models/logistic_regression.cpp
+    src/common/classification_evaluation.cpp
+    src/linear_models/softmax_regression.cpp
+    src/common/multiclass_metrics.cpp
 )
 
 target_include_directories(ml_core
@@ -52,6 +58,8 @@ add_executable(ml_core_tests
     experiments/phase-1-math-sanity/phase1_math_sanity.cpp
     experiments/phase-2-evaluation-methodology/phase2_evaluation_sanity.cpp
     experiments/phase-3-linear-models/phase3_linear_models_sanity.cpp
+    experiments/phase-4-logistic-regression/phase4_logistic_regression_sanity.cpp
+    experiments/phase-4-logistic-regression/phase4_softmax_regression_sanity.cpp
 )
 
 target_include_directories(ml_core_tests
@@ -60,6 +68,7 @@ target_include_directories(ml_core_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-1-math-sanity
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-2-evaluation-methodology
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-3-linear-models
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-4-logistic-regression
 )
 
 target_link_libraries(ml_core_tests
