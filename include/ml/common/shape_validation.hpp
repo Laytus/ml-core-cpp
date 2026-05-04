@@ -12,6 +12,12 @@ void validate_same_number_of_rows(
     const std::string& context
 );
 
+void validate_same_number_of_rows(
+    const Matrix& X,
+    const Matrix& y,
+    const std::string& context
+);
+
 void validate_same_size(
     const Vector& a,
     const Vector& b,

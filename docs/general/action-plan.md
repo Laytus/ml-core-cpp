@@ -526,19 +526,19 @@ It should therefore exist as a reusable and serious part of the project rather t
 - [x] Write theory for conditioning, scaling, and optimization geometry
 - [x] Write theory for initialization sensitivity and convergence behavior
 - [x] Write theory bridge for adaptive optimizers conceptually
-- [ ] Design reusable optimizer interfaces that can support multiple trainable models
-- [ ] Refactor any model-specific training logic into reusable optimizer-aware structures
-- [ ] Implement batch GD
-- [ ] Implement SGD
-- [ ] Implement mini-batch GD
-- [ ] Implement momentum
-- [ ] Implement reusable logging/history structures for optimization runs
-- [ ] Add experiments comparing:
+- [x] Design reusable optimizer interfaces that can support multiple trainable models
+- [x] Refactor any model-specific training logic into reusable optimizer-aware structures
+- [x] Implement batch GD
+- [x] Implement SGD
+- [x] Implement mini-batch GD
+- [x] Implement momentum
+- [x] Implement reusable logging/history structures for optimization runs
+- [x] Add experiments comparing:
   - batch vs SGD vs mini-batch
   - with and without momentum
   - different learning rates
   - scaled vs unscaled optimization behavior
-- [ ] Summarize optimizer behavior in docs/outputs
+- [x] Summarize optimizer behavior in docs/outputs
 
 ### Expected files / deliverables
 - theory doc:
@@ -920,6 +920,11 @@ Follow the phases in this order:
 12. Phase 11 – Wrap-Up and Transition
 
 This order is chosen to avoid useless implementation and dependency problems.
+<!-- 
+| Phase | Description | Time | Status |
+|-------|-------------|------|--------|
+| 0 | Reset and Infrastructure | 6–10 h | ☐ | 
+| 0 | Reset and Infrastructure | 6–10 h | ☑ |  -->
 
 ---
 

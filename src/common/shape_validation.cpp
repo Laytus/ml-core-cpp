@@ -22,6 +22,23 @@ void validate_same_number_of_rows(
     }
 }
 
+void validate_same_number_of_rows(
+    const Matrix& X,
+    const Matrix& y,
+    const std::string& context
+) {
+    if (X.rows() != y.rows()) {
+        std::ostringstream oss;
+        oss << context
+            << ": X rows must match y rows. Got X.rows() = "
+            << X.rows()
+            << ", y.rows() = "
+            << y.rows()
+            << ".";
+        throw std::invalid_argument(oss.str());
+    }
+}
+
 void validate_same_size(
     const Vector& a,
     const Vector& b,
