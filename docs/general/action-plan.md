@@ -104,7 +104,7 @@ When a model or method is implemented seriously, it must be tested in a real min
 
 ## Phase Overview
 
-The project will cover all phases from 0 to 11.
+The project will cover all phases from 0 to 11, with an added Phase 6B dedicated to tree ensembles and advanced tree features.
 
 Each phase below includes:
 - purpose
@@ -566,10 +566,10 @@ It should therefore exist as a reusable and serious part of the project rather t
 - optimization theory docs
 
 ### Exit criteria
-- [ ] At least two trainable models can share the optimization framework cleanly
-- [ ] Batch / SGD / mini-batch are implemented and comparable
-- [ ] Momentum is integrated without ad-hoc duplication
-- [ ] Convergence analysis is based on structured outputs, not manual inspection only
+- [x] At least two trainable models can share the optimization framework cleanly
+- [x] Batch / SGD / mini-batch are implemented and comparable
+- [x] Momentum is integrated without ad-hoc duplication
+- [x] Convergence analysis is based on structured outputs, not manual inspection only
 
 ### Optimization note
 This phase must reduce duplication, not add another layer of it.
@@ -587,27 +587,28 @@ This phase must reduce duplication, not add another layer of it.
 ### Why this phase exists
 Trees are the main conceptual entry point to non-linear tabular ML.
 
-A real simple tree builder is worth implementing. Full ensemble systems are better treated more selectively.
+A real simple tree builder is worth implementing first because Random Forest and Gradient Boosting should reuse stable tree infrastructure instead of duplicating or bypassing it.
+
+Random Forest and Gradient Boosting are part of the long-term implementation scope of this project. However, Phase 6 will focus first on a single Decision Tree. After the Decision Tree is complete, the project will decide whether to implement ensembles immediately or move them into a dedicated future phase, such as `Phase 6B – Tree Ensembles`.
 
 ### Prerequisites
 - Phases 0–5 complete
 
 ### Detailed tasks
-- [ ] Write theory for split quality, Gini, entropy, and weighted child impurity
-- [ ] Write theory for recursive tree construction and stopping rules
-- [ ] Write theory for pruning intuition
-- [ ] Write theory for ensembles:
+- [x] Write theory for split quality, Gini, entropy, and weighted child impurity
+- [x] Write theory for recursive tree construction and stopping rules
+- [x] Write theory for pruning intuition
+- [x] Write theory for ensembles:
   - random forest intuition
   - gradient boosting intuition
-- [ ] Replace the previous isolated utilities mindset with a real tree-building workflow
-- [ ] Implement weighted split scoring
-- [ ] Implement candidate-threshold evaluation
-- [ ] Implement best-threshold selection for the simplified setting
-- [ ] Implement recursive tree growth
-- [ ] Implement stopping rules
-- [ ] Implement tree-based prediction traversal
-- [ ] Add experiments comparing tree behavior under different depth / stopping settings
-- [ ] Keep random forest and boosting at theory + light experimental comparison level unless later needed more deeply
+- [x] Replace the previous isolated utilities mindset with a real tree-building workflow
+- [x] Implement weighted split scoring
+- [x] Implement candidate-threshold evaluation
+- [x] Implement best-threshold selection for the simplified setting
+- [x] Implement recursive tree growth
+- [x] Implement stopping rules
+- [x] Implement tree-based prediction traversal
+- [x] Add experiments comparing tree behavior under different depth / stopping settings
 
 ### Expected files / deliverables
 - theory doc:
@@ -629,16 +630,163 @@ A real simple tree builder is worth implementing. Full ensemble systems are bett
 - split scoring utilities
 - recursive builder
 - tree prediction flow
-- ensemble theory notes and comparison summaries
+- ensemble theory notes
+- explicit post-Decision-Tree decision on whether Random Forest and Gradient Boosting are implemented immediately or moved to a dedicated future phase
 
 ### Exit criteria
-- [ ] The project contains a genuine simple Decision Tree, not only isolated split utilities
-- [ ] Split scoring is quantitative and reusable
-- [ ] Tree growth and stopping rules are explicit
-- [ ] Ensemble topics are at least conceptually integrated even if not fully implemented
+- [x] The project contains a genuine simple Decision Tree, not only isolated split utilities
+- [x] Split scoring is quantitative and reusable
+- [x] Tree growth and stopping rules are explicit
+- [x] Ensemble topics are conceptually integrated
+- [x] Random Forest and Gradient Boosting remain explicitly planned for implementation in a dedicated future phase: `Phase 6B – Tree Ensembles and Advanced Tree Features`
 
 ### Optimization note
-Implement one tree properly. Do not fully implement every ensemble method unless it becomes strategically necessary.
+Implement one tree properly first. Do not overload the initial tree phase with ensemble infrastructure before the base tree is stable. Random Forest and Gradient Boosting should be implemented later in this project, but only after the single-tree implementation can support them cleanly.
+
+---
+
+## Phase 6B – Tree Ensembles and Advanced Tree Features
+
+**Goal:** Extend the Phase 6 Decision Tree into a stronger tree-learning module by implementing Random Forest, Gradient Boosting, and advanced tree controls.
+
+**Level:** A
+
+**Estimated effort:** 24–40 hours
+
+### Why this phase exists
+Phase 6 produced a real single Decision Tree implementation with split scoring, recursive growth, stopping rules, prediction traversal, and tree behavior experiments.
+
+That single tree is the correct foundation for more advanced tree methods.
+
+Random Forest and Gradient Boosting should not be implemented as disconnected models. They should reuse the tree infrastructure already created in Phase 6.
+
+This phase exists to turn the single-tree implementation into a broader tree-learning family while keeping ensemble logic, advanced split constraints, pruning, missing-value handling, and sample weighting explicit and testable.
+
+### Prerequisites
+- Phases 0–6 complete
+- `DecisionTreeClassifier` implemented and tested
+- split scoring and best-split selection implemented
+- recursive tree growth and prediction traversal implemented
+- Phase 6 tree experiment outputs generated
+
+### Detailed tasks
+
+#### Advanced Decision Tree features
+- [ ] Write theory for advanced tree controls:
+  - `max_leaf_nodes`
+  - `max_features`
+  - `class_weight`
+  - `sample_weight`
+  - missing-value handling
+  - cost-complexity pruning
+- [ ] Add `max_leaf_nodes` support
+- [ ] Add `max_features` support for feature subsampling during split search
+- [ ] Add `class_weight` support for imbalanced classification
+- [ ] Add `sample_weight` support in impurity and split scoring
+- [ ] Define missing-value handling strategy
+- [ ] Implement missing-value handling for split evaluation and prediction
+- [ ] Write theory for post-pruning and cost-complexity pruning
+- [ ] Implement a simple cost-complexity pruning workflow if feasible
+- [ ] Add experiments comparing advanced tree controls:
+  - unrestricted vs `max_leaf_nodes`
+  - all features vs feature subsampling
+  - unweighted vs class-weighted training
+  - complete data vs missing-value handling
+  - unpruned vs pruned tree behavior
+
+#### Random Forest
+- [ ] Write theory for Random Forest implementation details:
+  - bagging
+  - bootstrap samples
+  - feature subsampling
+  - ensemble voting
+  - out-of-bag intuition
+- [ ] Implement bootstrap sampling utilities
+- [ ] Implement feature-subsampling support using `max_features`
+- [ ] Implement `RandomForestClassifier`
+- [ ] Implement majority-vote prediction aggregation
+- [ ] Add deterministic random seed support
+- [ ] Add optional out-of-bag evaluation if feasible
+- [ ] Add experiments comparing:
+  - single tree vs random forest
+  - number of trees
+  - `max_features`
+  - bootstrap vs no bootstrap
+
+#### Gradient Boosting
+- [ ] Write theory for Gradient Boosting implementation details:
+  - additive models
+  - residual / gradient fitting
+  - learning rate / shrinkage
+  - shallow weak learners
+  - staged predictions
+- [ ] Decide first target:
+  - `GradientBoostingRegressor`
+  - or `GradientBoostingClassifier`
+- [ ] Implement the first Gradient Boosting model using shallow trees
+- [ ] Implement learning-rate support
+- [ ] Implement staged training history
+- [ ] Add experiments comparing:
+  - number of estimators
+  - learning rate
+  - tree depth
+  - single tree vs boosted trees
+
+### Expected files / deliverables
+- theory doc updates or new doc:
+  - `docs/theory/tree-ensembles.md`
+  - or expanded `docs/theory/trees-and-ensembles.md`
+- advanced tree headers and sources, as needed:
+  - `include/ml/trees/advanced_tree_options.hpp`
+  - `src/trees/advanced_tree_options.cpp`
+- ensemble headers and sources:
+  - `include/ml/trees/random_forest.hpp`
+  - `src/trees/random_forest.cpp`
+  - `include/ml/trees/gradient_boosting.hpp`
+  - `src/trees/gradient_boosting.cpp`
+- optional helper headers and sources:
+  - `include/ml/trees/bootstrap.hpp`
+  - `src/trees/bootstrap.cpp`
+  - `include/ml/trees/pruning.hpp`
+  - `src/trees/pruning.cpp`
+  - `include/ml/trees/missing_values.hpp`
+  - `src/trees/missing_values.cpp`
+- experiment folders:
+  - `experiments/phase-6b-tree-ensembles/`
+  - `outputs/phase-6b-tree-ensembles/`
+
+### Concrete outputs
+- advanced Decision Tree options
+- weighted split behavior where needed
+- missing-value handling strategy and implementation
+- optional cost-complexity pruning implementation
+- Random Forest implementation
+- Gradient Boosting implementation
+- ensemble comparison experiments
+- documented decision boundaries between single-tree logic and ensemble orchestration
+
+### Exit criteria
+- [ ] Advanced tree options are clearly documented and tested
+- [ ] `max_leaf_nodes` works or is explicitly deferred with justification
+- [ ] `max_features` works and can be reused by Random Forest
+- [ ] class/sample weighting behavior is documented and tested where implemented
+- [ ] missing-value behavior is explicit and tested
+- [ ] pruning is either implemented or honestly documented as deferred
+- [ ] Random Forest is implemented as a reusable model, not only a demo
+- [ ] Gradient Boosting is implemented as a reusable model, not only a demo
+- [ ] Experiments compare single tree, Random Forest, and Gradient Boosting behavior
+- [ ] The tree module remains cleanly separated between base tree logic, advanced tree controls, and ensemble orchestration
+
+### Optimization note
+Do not implement Random Forest or Gradient Boosting by copying the Decision Tree code into new models.
+
+The base tree should remain the reusable learner.
+
+Random Forest should orchestrate many trees through bootstrap sampling, feature subsampling, and voting.
+
+Gradient Boosting should orchestrate many shallow trees through sequential residual or gradient correction.
+
+This phase should deepen the tree system without turning it into an unstructured collection of special cases.
 
 ---
 
@@ -913,11 +1061,12 @@ Follow the phases in this order:
 5. Phase 4 – Linear Classification Models
 6. Phase 5 – Optimization for ML
 7. Phase 6 – Trees and Ensembles
-8. Phase 7 – Distance and Kernel Thinking
-9. Phase 8 – Unsupervised Learning
-10. Phase 9 – Probabilistic ML Essentials
-11. Phase 10 – Bridge to Deep Learning
-12. Phase 11 – Wrap-Up and Transition
+8. Phase 6B – Tree Ensembles and Advanced Tree Features
+9. Phase 7 – Distance and Kernel Thinking
+10. Phase 8 – Unsupervised Learning
+11. Phase 9 – Probabilistic ML Essentials
+12. Phase 10 – Bridge to Deep Learning
+13. Phase 11 – Wrap-Up and Transition
 
 This order is chosen to avoid useless implementation and dependency problems.
 <!-- 
@@ -939,6 +1088,7 @@ Approximate hours per phase:
 - Phase 4: 12–18 h
 - Phase 5: 14–22 h
 - Phase 6: 16–24 h
+- Phase 6B: 24–40 h
 - Phase 7: 8–14 h
 - Phase 8: 14–22 h
 - Phase 9: 10–16 h
@@ -947,8 +1097,8 @@ Approximate hours per phase:
 
 ### Approximate total
 
-- lower bound: **133 h**
-- upper bound: **208 h**
+- lower bound: **157 h**
+- upper bound: **248 h**
 
 This is a serious project.
 
@@ -986,6 +1136,7 @@ This is the project meant to build the actual base layer that was still missing.
 | 4. Linear Classification Models | A | 18–28 | Logistic regression, softmax regression, BCE, categorical CE, classification metrics | Logistic/softmax theory doc | Real vectorized binary and multiclass classifiers work in pipeline |
 | 5. Optimization for ML | A | 14–22 | Batch/SGD/mini-batch/momentum framework | Optimization theory doc | Shared optimizer logic works across models |
 | 6. Trees and Ensembles | B | 16–24 | Simple recursive Decision Tree | Trees/ensembles theory doc | Real tree builder works and ensembles are conceptually covered |
+| 6B. Tree Ensembles and Advanced Tree Features | A | 24–40 | Random Forest, Gradient Boosting, advanced tree controls | Tree ensembles and advanced tree theory | Ensemble models work and reuse the base tree cleanly |
 | 7. Distance and Kernel Thinking | B | 8–14 | Upgraded k-NN experiments | Distance/kernel theory doc | Distance, margins, and kernels are conceptually integrated |
 | 8. Unsupervised Learning | A | 14–22 | k-means, PCA | Unsupervised-learning theory doc | Real unsupervised implementations and experiments exist |
 | 9. Probabilistic ML Essentials | B | 10–16 | One lightweight probabilistic model or demo | Probabilistic-ML theory doc | Likelihood-based thinking is clearly integrated |

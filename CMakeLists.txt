@@ -36,6 +36,9 @@ add_library(ml_core
     src/optimization/sgd.cpp
     src/optimization/mini_batch_gradient_descent.cpp
     src/optimization/training_history.cpp
+    src/trees/split_scoring.cpp
+    src/trees/tree_builder.cpp
+    src/trees/decision_tree.cpp
 )
 
 target_include_directories(ml_core
@@ -66,6 +69,7 @@ add_executable(ml_core_tests
     experiments/phase-4-logistic-regression/phase4_logistic_regression_sanity.cpp
     experiments/phase-4-logistic-regression/phase4_softmax_regression_sanity.cpp
     experiments/phase-5-optimization/phase5_optimization_sanity.cpp
+    experiments/phase-6-trees-ensembles/phase6_trees_sanity.cpp
 )
 
 target_include_directories(ml_core_tests
@@ -76,6 +80,7 @@ target_include_directories(ml_core_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-3-linear-models
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-4-logistic-regression
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-5-optimization
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-6-trees-ensembles
 )
 
 target_link_libraries(ml_core_tests
