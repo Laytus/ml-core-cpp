@@ -62,6 +62,22 @@ std::unique_ptr<TreeNode> make_leaf(
     return node;
 }
 
+std::unique_ptr<TreeNode> make_leaf(
+    const Vector& y,
+    const Vector& sample_weight,
+    double impurity
+) {
+    auto node = std::make_unique<TreeNode>();
+
+    node->is_leaf = true;
+    node->prediction = majority_class(y, sample_weight);
+    node->impurity = impurity;
+    node->impurity_decrease = 0.0;
+    node->num_samples = static_cast<std::size_t>(y.size());
+
+    return node;
+}
+
 }  // namespace
 
 double majority_class(const Vector& y) {
@@ -75,6 +91,80 @@ double majority_class(const Vector& y) {
             best_label = label;
             best_count = count;
         }
+    }
+
+    return static_cast<double>(best_label);
+}
+
+double majority_class(
+    const Vector& y,
+    const Vector& sample_weight
+) {
+    validate_non_empty_vector(
+        y,
+        "majority_class weighted y"
+    );
+
+    validate_non_empty_vector(
+        sample_weight,
+        "majority_class weighted sample_weight"
+    );
+
+    validate_same_size(
+        y,
+        sample_weight,
+        "majority_class weighted"
+    );
+
+    std::map<int, double> weighted_counts;
+
+    for (Eigen::Index i = 0; i < y.size(); ++i) {
+        const double value = y(i);
+        const double rounded = std::round(value);
+
+        if (std::abs(value - rounded) > 1e-12) {
+            throw std::invalid_argument(
+                "majority_class weighted: class labels must be integer-valued"
+            );
+        }
+
+        if (rounded < 0.0) {
+            throw std::invalid_argument(
+                "majority_class weighted: class labels must be non-negative"
+            );
+        }
+
+        const double weight = sample_weight(i);
+
+        if (!std::isfinite(weight)) {
+            throw std::invalid_argument(
+                "majority_class weighted: sample weights must be finite"
+            );
+        }
+
+        if (weight < 0.0) {
+            throw std::invalid_argument(
+                "majority_class weighted: sample weights must be non-negative"
+            );
+        }
+
+        weighted_counts[static_cast<int>(rounded)] += weight;
+    }
+
+    int best_label = -1;
+    double best_weight = -1.0;
+
+    for (const auto& [label, weight] : weighted_counts) {
+        if (weight > best_weight) {
+            best_label = label;
+            best_weight = weight;
+        }
+    }
+
+    if (best_weight <= 0.0) {
+        throw std::invalid_argument(
+            "majority_class weighted: total sample weight must be positive"
+        );
     }
 
     return static_cast<double>(best_label);
@@ -163,6 +253,83 @@ DatasetSplit split_dataset(
     return split;
 }
 
+DatasetSplit split_dataset(
+    const Matrix& X,
+    const Vector& y,
+    const Vector& sample_weight,
+    Eigen::Index feature_index,
+    double threshold
+) {
+    validate_tree_training_data(
+        X,
+        y,
+        "split_dataset weighted"
+    );
+
+    validate_non_empty_vector(
+        sample_weight,
+        "split_dataset weighted sample_weight"
+    );
+
+    validate_same_size(
+        y,
+        sample_weight,
+        "split_dataset weighted"
+    );
+
+    if (feature_index < 0 || feature_index >= X.cols()) {
+        throw std::invalid_argument(
+            "split_dataset weighted: feature_index is out of range"
+        );
+    }
+
+    if (!std::isfinite(threshold)) {
+        throw std::invalid_argument(
+            "split_dataset weighted: threshold must be finite"
+        );
+    }
+
+    std::size_t left_count = 0;
+    std::size_t right_count = 0;
+
+    for (Eigen::Index i = 0; i < X.rows(); ++i) {
+        if (X(i, feature_index) <= threshold) {
+            ++left_count;
+        } else {
+            ++right_count;
+        }
+    }
+
+    DatasetSplit split;
+
+    split.X_left = Matrix(static_cast<Eigen::Index>(left_count), X.cols());
+    split.y_left = Vector(static_cast<Eigen::Index>(left_count));
+    split.sample_weight_left = Vector(static_cast<Eigen::Index>(left_count));
+
+    split.X_right = Matrix(static_cast<Eigen::Index>(right_count), X.cols());
+    split.y_right = Vector(static_cast<Eigen::Index>(right_count));
+    split.sample_weight_right = Vector(static_cast<Eigen::Index>(right_count));
+
+    Eigen::Index left_index = 0;
+    Eigen::Index right_index = 0;
+
+    for (Eigen::Index i = 0; i < X.rows(); ++i) {
+        if (X(i, feature_index) <= threshold) {
+            split.X_left.row(left_index) = X.row(i);
+            split.y_left(left_index) = y(i);
+            split.sample_weight_left(left_index) = sample_weight(i);
+            ++left_index;
+        } else {
+            split.X_right.row(right_index) = X.row(i);
+            split.y_right(right_index) = y(i);
+            split.sample_weight_right(right_index) = sample_weight(i);
+            ++right_index;
+        }
+    }
+
+    return split;
+}
+
 std::unique_ptr<TreeNode> build_tree(
     const Matrix& X,
     const Vector& y,
@@ -223,6 +390,119 @@ std::unique_ptr<TreeNode> build_tree(
     node->right = build_tree(
         dataset_split.X_right,
         dataset_split.y_right,
+        options,
+        depth + 1
+    );
+
+    return node;
+}
+
+std::unique_ptr<TreeNode> build_tree(
+    const Matrix& X,
+    const Vector& y,
+    const Vector& sample_weight,
+    const DecisionTreeOptions& options,
+    std::size_t depth
+) {
+    validate_decision_tree_options(
+        options,
+        "build_tree weighted"
+    );
+
+    validate_tree_training_data(
+        X,
+        y,
+        "build_tree weighted"
+    );
+
+    validate_non_empty_vector(
+        sample_weight,
+        "build_tree weighted sample_weight"
+    );
+
+    validate_same_size(
+        y,
+        sample_weight,
+        "build_tree weighted"
+    );
+
+    const double node_impurity = weighted_gini_impurity(
+        y,
+        sample_weight
+    );
+
+    if (is_pure_node(y)) {
+        return make_leaf(
+            y,
+            sample_weight,
+            node_impurity
+        );
+    }
+
+    if (depth >= options.max_depth) {
+        return make_leaf(
+            y,
+            sample_weight,
+            node_impurity
+        );
+    }
+
+    if (static_cast<std::size_t>(y.size()) < options.min_samples_split) {
+        return make_leaf(
+            y,
+            sample_weight,
+            node_impurity
+        );
+    }
+
+    const SplitCandidate split = find_best_split(
+        X,
+        y,
+        sample_weight,
+        options
+    );
+
+    if (!split.valid) {
+        return make_leaf(
+            y,
+            sample_weight,
+            node_impurity
+        );
+    }
+
+    DatasetSplit dataset_split = split_dataset(
+        X,
+        y,
+        sample_weight,
+        split.feature_index,
+        split.threshold
+    );
+
+    auto node = std::make_unique<TreeNode>();
+
+    node->is_leaf = false;
+    node->prediction = majority_class(
+        y,
+        sample_weight
+    );
+    node->feature_index = split.feature_index;
+    node->threshold = split.threshold;
+    node->impurity = node_impurity;
+    node->impurity_decrease = split.impurity_decrease;
+    node->num_samples = static_cast<std::size_t>(y.size());
+
+    node->left = build_tree(
+        dataset_split.X_left,
+        dataset_split.y_left,
+        dataset_split.sample_weight_left,
+        options,
+        depth + 1
+    );
+
+    node->right = build_tree(
+        dataset_split.X_right,
+        dataset_split.y_right,
+        dataset_split.sample_weight_right,
         options,
         depth + 1
     );

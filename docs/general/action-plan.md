@@ -672,22 +672,29 @@ This phase exists to turn the single-tree implementation into a broader tree-lea
 ### Detailed tasks
 
 #### Advanced Decision Tree features
-- [ ] Write theory for advanced tree controls:
+- [x] Write theory for advanced tree controls:
   - `max_leaf_nodes`
   - `max_features`
   - `class_weight`
   - `sample_weight`
   - missing-value handling
   - cost-complexity pruning
-- [ ] Add `max_leaf_nodes` support
-- [ ] Add `max_features` support for feature subsampling during split search
-- [ ] Add `class_weight` support for imbalanced classification
-- [ ] Add `sample_weight` support in impurity and split scoring
-- [ ] Define missing-value handling strategy
-- [ ] Implement missing-value handling for split evaluation and prediction
-- [ ] Write theory for post-pruning and cost-complexity pruning
-- [ ] Implement a simple cost-complexity pruning workflow if feasible
-- [ ] Add experiments comparing advanced tree controls:
+- [x] Add advanced tree option fields carefully
+- [x] Add tests for advanced option validation
+- [x] Add explicit missing-value rejection for train/predict paths
+- [x] Add `max_leaf_nodes` support
+- [x] Add `max_features` support for feature subsampling during split search
+- [x] Add `class_weight` support for imbalanced classification
+- [x] Add `sample_weight` support in impurity and split scoring
+- [x] Define missing-value handling strategy:
+  - first implementation: explicit rejection
+  - optional later extension: learned missing direction
+- [x] Optionally implement learned missing direction for split evaluation and prediction
+  - Deferred: explicit missing-value rejection is implemented; learned routing is postponed to avoid blocking Random Forest and Gradient Boosting.
+- [x] Write theory for post-pruning and cost-complexity pruning
+- [x] Implement a simple cost-complexity pruning workflow if feasible
+  - Deferred: feasible but postponed to avoid delaying Random Forest and Gradient Boosting.
+- [x] Add experiments comparing advanced tree controls:
   - unrestricted vs `max_leaf_nodes`
   - all features vs feature subsampling
   - unweighted vs class-weighted training
@@ -739,6 +746,9 @@ This phase exists to turn the single-tree implementation into a broader tree-lea
 - advanced tree headers and sources, as needed:
   - `include/ml/trees/advanced_tree_options.hpp`
   - `src/trees/advanced_tree_options.cpp`
+- Phase 6B tests:
+  - `experiments/phase-6b-tree-ensembles/phase6b_tree_ensembles_sanity.hpp`
+  - `experiments/phase-6b-tree-ensembles/phase6b_tree_ensembles_sanity.cpp`
 - ensemble headers and sources:
   - `include/ml/trees/random_forest.hpp`
   - `src/trees/random_forest.cpp`
@@ -757,8 +767,10 @@ This phase exists to turn the single-tree implementation into a broader tree-lea
 
 ### Concrete outputs
 - advanced Decision Tree options
+- explicit advanced option validation tests
+- explicit missing-value rejection for train/predict paths
 - weighted split behavior where needed
-- missing-value handling strategy and implementation
+- optional learned missing-value direction if implemented
 - optional cost-complexity pruning implementation
 - Random Forest implementation
 - Gradient Boosting implementation
@@ -766,11 +778,11 @@ This phase exists to turn the single-tree implementation into a broader tree-lea
 - documented decision boundaries between single-tree logic and ensemble orchestration
 
 ### Exit criteria
-- [ ] Advanced tree options are clearly documented and tested
+- [ ] Advanced tree options are clearly documented, implemented, and tested
 - [ ] `max_leaf_nodes` works or is explicitly deferred with justification
 - [ ] `max_features` works and can be reused by Random Forest
 - [ ] class/sample weighting behavior is documented and tested where implemented
-- [ ] missing-value behavior is explicit and tested
+- [ ] missing-value behavior is explicit and tested, starting with rejection of unsupported missing values
 - [ ] pruning is either implemented or honestly documented as deferred
 - [ ] Random Forest is implemented as a reusable model, not only a demo
 - [ ] Gradient Boosting is implemented as a reusable model, not only a demo

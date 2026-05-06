@@ -39,6 +39,8 @@ add_library(ml_core
     src/trees/split_scoring.cpp
     src/trees/tree_builder.cpp
     src/trees/decision_tree.cpp
+    src/trees/best_first_tree_builder.cpp
+    src/trees/class_weights.cpp
 )
 
 target_include_directories(ml_core
@@ -70,6 +72,7 @@ add_executable(ml_core_tests
     experiments/phase-4-logistic-regression/phase4_softmax_regression_sanity.cpp
     experiments/phase-5-optimization/phase5_optimization_sanity.cpp
     experiments/phase-6-trees-ensembles/phase6_trees_sanity.cpp
+    experiments/phase-6-trees-ensembles/phase6b_trees_ensembles_sanity.cpp
 )
 
 target_include_directories(ml_core_tests

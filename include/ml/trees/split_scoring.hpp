@@ -3,6 +3,7 @@
 #include "ml/common/types.hpp"
 
 #include <cstddef>
+#include <optional>
 
 namespace ml {
 
@@ -11,6 +12,13 @@ struct DecisionTreeOptions {
     std::size_t min_samples_split{2};
     std::size_t min_samples_leaf{1};
     double min_impurity_decrease{0.0};
+
+    std::optional<std::size_t> max_leaf_nodes{std::nullopt};
+    std::optional<std::size_t> max_features{std::nullopt};
+
+    bool use_balanced_class_weight{false};
+
+    unsigned int random_seed{42};
 };
 
 struct SplitCandidate {
@@ -33,11 +41,28 @@ double gini_impurity(const Vector& y);
 
 double entropy(const Vector& y);
 
+double weighted_gini_impurity(
+    const Vector& y,
+    const Vector& sample_weight
+);
+
+double weighted_entropy(
+    const Vector& y,
+    const Vector& sample_weight
+);
+
 double weighted_child_impurity(
     double left_impurity,
     double right_impurity,
     std::size_t left_count,
     std::size_t right_count
+);
+
+double weighted_child_impurity_by_weight(
+    double left_impurity,
+    double right_impurity,
+    double left_weight,
+    double right_weight
 );
 
 double impurity_reduction(
@@ -58,9 +83,25 @@ SplitCandidate evaluate_candidate_threshold(
     const DecisionTreeOptions& options = DecisionTreeOptions{}
 );
 
+SplitCandidate evaluate_candidate_threshold(
+    const Matrix& X,
+    const Vector& y,
+    const Vector& sample_weight,
+    Eigen::Index feature_index,
+    double threshold,
+    const DecisionTreeOptions& options = DecisionTreeOptions{}
+);
+
 SplitCandidate find_best_split(
     const Matrix& X,
     const Vector& y,
+    const DecisionTreeOptions& options = DecisionTreeOptions{}
+);
+
+SplitCandidate find_best_split(
+    const Matrix& X,
+    const Vector& y,
+    const Vector& sample_weight,
     const DecisionTreeOptions& options = DecisionTreeOptions{}
 );
 

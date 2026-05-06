@@ -2,8 +2,11 @@
 
 #include "ml/common/shape_validation.hpp"
 #include "ml/trees/tree_builder.hpp"
+#include "ml/trees/best_first_tree_builder.hpp"
+#include "ml/trees/class_weights.hpp"
 
 #include <stdexcept>
+#include <cmath>
 
 namespace ml {
 
@@ -22,7 +25,36 @@ void DecisionTreeClassifier::fit(
     validate_non_empty_vector(y, "DecisionTreeClassifier::fit");
     validate_same_number_of_rows(X, y, "DecisionTreeClassifier::fit");
 
-    root_ = build_tree(X, y, options_);
+    if (options_.use_balanced_class_weight) {
+        const std::map<int, double> class_weights = balanced_class_weights(y);
+
+        const Vector sample_weight = sample_weights_from_class_weights(y, class_weights);
+
+        if (options_.max_leaf_nodes.has_value()) {
+            root_ = build_tree_best_first(
+                X,
+                y,
+                sample_weight,
+                options_
+            );
+        } else {
+            root_ = build_tree(
+                X,
+                y,
+                sample_weight,
+                options_
+            );
+        }
+
+        num_features_ = X.cols();
+        return;
+    }
+
+    if (options_.max_leaf_nodes.has_value()) {
+        root_ = build_tree_best_first(X, y, options_);
+    } else {
+        root_ = build_tree(X, y, options_);
+    }
 
     num_features_ = X.cols();
 }
@@ -42,6 +74,16 @@ Vector DecisionTreeClassifier::predict(
         throw std::invalid_argument(
             "DecisionTreeClassifier::predict: X feature count must match training feature count"
         );
+    }
+
+    for (Eigen::Index i = 0; i < X.rows(); ++i) {
+        for (Eigen::Index j = 0; j < X.cols(); ++j) {
+            if (!std::isfinite(X(i, j))) {
+                throw std::invalid_argument(
+                    "DecisionTreeClassifier::predict: X values must be finite"
+                );
+            }
+        }
     }
 
     Vector predictions(X.rows());

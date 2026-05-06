@@ -2,12 +2,14 @@
 
 #include "ml/common/shape_validation.hpp"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <map>
-#include <vector>
+#include <numeric>
+#include <random>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace ml {
 
@@ -101,7 +103,6 @@ std::vector<double> midpoint_thresholds(
         const double left = sorted_unique_values[i];
         const double right = sorted_unique_values[i + 1];
 
-        // thresholds.push_back(left + 0.5 * (right - left));
         thresholds.push_back(0.5 * (left + right));
     }
 
@@ -140,6 +141,151 @@ bool is_better_split(
     }
 
     return false;
+}
+
+std::vector<Eigen::Index> candidate_feature_indices(
+    Eigen::Index num_features,
+    const DecisionTreeOptions& options
+) {
+    if (num_features <= 0) {
+        throw std::invalid_argument(
+            "candidate_feature_indices: num_features must be positive"
+        );
+    }
+
+    const std::size_t total_features = static_cast<std::size_t>(num_features);
+
+    if (!options.max_features.has_value()) {
+        std::vector<Eigen::Index> all_features;
+        all_features.reserve(total_features);
+
+        for (Eigen::Index feature_index = 0; feature_index < num_features; ++feature_index) {
+            all_features.push_back(feature_index);
+        }
+
+        return all_features;
+    }
+
+    const std::size_t requested_features = options.max_features.value();
+
+    if (requested_features == 0) {
+        throw std::invalid_argument(
+            "candidate_feature_indices: requested_features must be at least 1"
+        );
+    }
+
+    if (requested_features > total_features) {
+        throw std::invalid_argument(
+            "candidate_feature_indices: max_features must be less than or equal to the number of features"
+        );
+    }
+
+    std::vector<Eigen::Index> features;
+    features.reserve(total_features);
+
+    for (Eigen::Index feature_index = 0; feature_index < num_features; ++feature_index) {
+        features.push_back(feature_index);
+    }
+
+    std::mt19937 generator(options.random_seed);
+    std::shuffle(features.begin(), features.end(), generator);
+
+    features.resize(requested_features);
+    
+    std::sort(features.begin(), features.end());
+
+    return features;
+}
+
+std::map<int, double> weighted_class_counts(
+    const Vector& y,
+    const Vector& sample_weight
+) {
+    validate_non_empty_vector(y, "weighted_class_counts");
+    validate_non_empty_vector(sample_weight, "weighted_class_counts");
+    validate_same_size(y, sample_weight, "weighted_class_counts");
+
+    std::map<int, double> counts;
+    double total_weight = 0.0;
+
+    for (Eigen::Index i = 0; i < y.size(); ++i) {
+        const double value = y(i);
+        const double rounded = std::round(value);
+
+        if (std::abs(value - rounded) > 1e-12) {
+            throw std::invalid_argument(
+                "weighted_class_counts: class labels must be integer-valued"
+            );
+        }
+
+        if (rounded < 0.0) {
+            throw std::invalid_argument(
+                "weighted_class_counts: class labels must be non-negative"
+            );
+        }
+
+        const double weight = sample_weight(i);
+
+        if (!std::isfinite(weight)) {
+            throw std::invalid_argument(
+                "weighted_class_counts: sample weights must be finite"
+            );
+        }
+
+        if (weight < 0.0) {
+            throw std::invalid_argument(
+                "weighted_class_counts: sample weights must be non-negative"
+            );
+        }
+
+        counts[static_cast<int>(rounded)] += weight;
+        total_weight += weight;
+    }
+
+    if (total_weight <= 0.0) {
+        throw std::invalid_argument(
+            "weighted_class_counts: total sample weights must be positive"
+        );
+    }
+
+    return counts;
+}
+
+double sum_weights(
+    const Vector& sample_weight
+) {
+    validate_non_empty_vector(
+        sample_weight,
+        "sum_weights"
+    );
+
+    double total = 0.0;
+
+    for (Eigen::Index i = 0; i < sample_weight.size(); ++i) {
+        const double weight = sample_weight(i);
+
+        if (!std::isfinite(weight)) {
+            throw std::invalid_argument(
+                "sum_weights: sample weights must be finite"
+            );
+        }
+
+        if (weight < 0.0) {
+            throw std::invalid_argument(
+                "sum_weights: sample weights must be non-negative"
+            );
+        }
+
+        total += weight;
+    }
+
+    if (total <= 0.0) {
+        throw std::invalid_argument(
+            "sum_weights: total sample weight must be positive"
+        );
+    }
+
+    return total;
 }
 
 }  // namespace
@@ -184,6 +330,55 @@ double entropy(const Vector& y) {
     return result;
 }
 
+double weighted_gini_impurity(
+    const Vector& y,
+    const Vector& sample_weight
+) {
+    const auto counts = weighted_class_counts(
+        y,
+        sample_weight
+    );
+
+    const double total_weight = sum_weights(sample_weight);
+
+    double squared_probability_sum = 0.0;
+
+    for (const auto& [label, weighted_count] : counts) {
+        static_cast<void>(label);
+
+        const double probability = weighted_count / total_weight;
+        squared_probability_sum += probability * probability;
+    }
+
+    return 1.0 - squared_probability_sum;
+}
+
+double weighted_entropy(
+    const Vector& y,
+    const Vector& sample_weight
+) {
+    const auto counts = weighted_class_counts(
+        y,
+        sample_weight
+    );
+
+    const double total_weight = sum_weights(sample_weight);
+
+    double result = 0.0;
+
+    for (const auto& [label, weighted_count] : counts) {
+        static_cast<void>(label);
+
+        const double probability = weighted_count / total_weight;
+
+        if (probability > 0.0) {
+            result -= probability * std::log2(probability);
+        }
+    }
+
+    return result;
+}
+
 double weighted_child_impurity(
     double left_impurity,
     double right_impurity,
@@ -211,6 +406,40 @@ double weighted_child_impurity(
     const double right_weight = static_cast<double>(right_count) / static_cast<double>(total_count);
 
     return left_weight * left_impurity + right_weight * right_impurity;
+}
+
+double weighted_child_impurity_by_weight(
+    double left_impurity,
+    double right_impurity,
+    double left_weight,
+    double right_weight
+) {
+    validate_impurity_value(
+        left_impurity,
+        "weighted_child_impurity_by_weight left_impurity"
+    );
+
+    validate_impurity_value(
+        right_impurity,
+        "weighted_child_impurity_by_weight right_impurity"
+    );
+
+    if (!std::isfinite(left_weight) || !std::isfinite(right_weight)) {
+        throw std::invalid_argument(
+            "weighted_child_impurity_by_weight: child weights must be finite"
+        );
+    }
+
+    if (left_weight <= 0.0 || right_weight <= 0.0) {
+        throw std::invalid_argument(
+            "weighted_child_impurity_by_weight: both child weights must be positive"
+        );
+    }
+
+    const double total_weight = left_weight + right_weight;
+
+    return (left_weight / total_weight) * left_impurity +
+           (right_weight / total_weight) * right_impurity;
 }
 
 double impurity_reduction(
@@ -256,6 +485,18 @@ void validate_decision_tree_options(
             context + ": min_impurity_decrease must be non-negative"
         );
     }
+
+    if (options.max_leaf_nodes.has_value() && options.max_leaf_nodes.value() == 0) {
+        throw std::invalid_argument(
+            context + ": max_leaf_nodes must be at least 1 when provided"
+        );
+    }
+
+    if (options.max_features.has_value() && options.max_features.value() == 0) {
+        throw std::invalid_argument(
+            context + ": max_features must be at least 1 when provided"
+        );
+    }
 }
 
 SplitCandidate evaluate_candidate_threshold(
@@ -284,6 +525,14 @@ SplitCandidate evaluate_candidate_threshold(
         throw std::invalid_argument(
             "evaluate_candidate_threshold: threshold must be finite"
         );
+    }
+
+    for (Eigen::Index i = 0; i < X.rows(); ++i) {
+        if (!std::isfinite(X(i, feature_index))) {
+            throw std::invalid_argument(
+                "evaluate_candidate_threshold: feature values must be finite"
+            );
+        }
     }
 
     SplitCandidate candidate;
@@ -356,6 +605,158 @@ SplitCandidate evaluate_candidate_threshold(
     return candidate;
 }
 
+SplitCandidate evaluate_candidate_threshold(
+    const Matrix& X,
+    const Vector& y,
+    const Vector& sample_weight,
+    Eigen::Index feature_index,
+    double threshold,
+    const DecisionTreeOptions& options
+) {
+    validate_decision_tree_options(
+        options,
+        "evaluate_candidate_threshold weighted"
+    );
+
+    validate_non_empty_matrix(
+        X,
+        "evaluate_candidate_threshold weighted"
+    );
+
+    validate_non_empty_vector(
+        y,
+        "evaluate_candidate_threshold weighted y"
+    );
+
+    validate_non_empty_vector(
+        sample_weight,
+        "evaluate_candidate_threshold weighted sample_weight"
+    );
+
+    validate_same_number_of_rows(
+        X,
+        y,
+        "evaluate_candidate_threshold weighted"
+    );
+
+    validate_same_size(
+        y,
+        sample_weight,
+        "evaluate_candidate_threshold weighted"
+    );
+
+    if (feature_index < 0 || feature_index >= X.cols()) {
+        throw std::invalid_argument(
+            "evaluate_candidate_threshold weighted: feature_index is out of range"
+        );
+    }
+
+    if (!std::isfinite(threshold)) {
+        throw std::invalid_argument(
+            "evaluate_candidate_threshold weighted: threshold must be finite"
+        );
+    }
+
+    for (Eigen::Index i = 0; i < X.rows(); ++i) {
+        if (!std::isfinite(X(i, feature_index))) {
+            throw std::invalid_argument(
+                "evaluate_candidate_threshold weighted: feature values must be finite"
+            );
+        }
+    }
+
+    SplitCandidate candidate;
+    candidate.feature_index = feature_index;
+    candidate.threshold = threshold;
+    candidate.parent_impurity = weighted_gini_impurity(
+        y,
+        sample_weight
+    );
+
+    std::size_t left_count = 0;
+    std::size_t right_count = 0;
+    double left_weight = 0.0;
+    double right_weight = 0.0;
+
+    for (Eigen::Index i = 0; i < X.rows(); ++i) {
+        if (X(i, feature_index) <= threshold) {
+            ++left_count;
+            left_weight += sample_weight(i);
+        } else {
+            ++right_count;
+            right_weight += sample_weight(i);
+        }
+    }
+
+    candidate.left_count = left_count;
+    candidate.right_count = right_count;
+
+    if (left_count == 0 || right_count == 0) {
+        return candidate;
+    }
+
+    if (
+        left_count < options.min_samples_leaf ||
+        right_count < options.min_samples_leaf
+    ) {
+        return candidate;
+    }
+
+    if (left_weight <= 0.0 || right_weight <= 0.0) {
+        return candidate;
+    }
+
+    Vector left_y(static_cast<Eigen::Index>(left_count));
+    Vector right_y(static_cast<Eigen::Index>(right_count));
+    Vector left_weight_vector(static_cast<Eigen::Index>(left_count));
+    Vector right_weight_vector(static_cast<Eigen::Index>(right_count));
+
+    Eigen::Index left_index = 0;
+    Eigen::Index right_index = 0;
+
+    for (Eigen::Index i = 0; i < X.rows(); ++i) {
+        if (X(i, feature_index) <= threshold) {
+            left_y(left_index) = y(i);
+            left_weight_vector(left_index) = sample_weight(i);
+            ++left_index;
+        } else {
+            right_y(right_index) = y(i);
+            right_weight_vector(right_index) = sample_weight(i);
+            ++right_index;
+        }
+    }
+
+    candidate.left_impurity = weighted_gini_impurity(
+        left_y,
+        left_weight_vector
+    );
+
+    candidate.right_impurity = weighted_gini_impurity(
+        right_y,
+        right_weight_vector
+    );
+
+    candidate.weighted_child_impurity = weighted_child_impurity_by_weight(
+        candidate.left_impurity,
+        candidate.right_impurity,
+        left_weight,
+        right_weight
+    );
+
+    candidate.impurity_decrease = impurity_reduction(
+        candidate.parent_impurity,
+        candidate.weighted_child_impurity
+    );
+
+    if (candidate.impurity_decrease < options.min_impurity_decrease) {
+        return candidate;
+    }
+
+    candidate.valid = true;
+
+    return candidate;
+}
+
 SplitCandidate find_best_split(
     const Matrix& X,
     const Vector& y,
@@ -369,7 +770,12 @@ SplitCandidate find_best_split(
 
     SplitCandidate best;
 
-    for (Eigen::Index feature_index = 0; feature_index < X.cols(); ++feature_index) {
+    const std::vector<Eigen::Index> features = candidate_feature_indices(
+        X.cols(),
+        options
+    );
+
+    for (Eigen::Index feature_index : features) {
         const std::vector<double> unique_values = sorted_unique_feature_values(X, feature_index);
 
         const std::vector<double> thresholds = midpoint_thresholds(unique_values);
@@ -382,6 +788,79 @@ SplitCandidate find_best_split(
                 threshold,
                 options
             );
+
+            if (is_better_split(candidate, best)) {
+                best = candidate;
+            }
+        }
+    }
+
+    return best;
+}
+
+SplitCandidate find_best_split(
+    const Matrix& X,
+    const Vector& y,
+    const Vector& sample_weight,
+    const DecisionTreeOptions& options
+) {
+    validate_decision_tree_options(
+        options,
+        "find_best_split weighted"
+    );
+
+    validate_non_empty_matrix(
+        X,
+        "find_best_split weighted"
+    );
+
+    validate_non_empty_vector(
+        y,
+        "find_best_split weighted y"
+    );
+
+    validate_non_empty_vector(
+        sample_weight,
+        "find_best_split weighted sample_weight"
+    );
+
+    validate_same_number_of_rows(
+        X,
+        y,
+        "find_best_split weighted"
+    );
+
+    validate_same_size(
+        y,
+        sample_weight,
+        "find_best_split weighted"
+    );
+
+    SplitCandidate best;
+
+    const std::vector<Eigen::Index> features =
+        candidate_feature_indices(
+            X.cols(),
+            options
+        );
+
+    for (Eigen::Index feature_index : features) {
+        const std::vector<double> unique_values =
+            sorted_unique_feature_values(X, feature_index);
+
+        const std::vector<double> thresholds =
+            midpoint_thresholds(unique_values);
+
+        for (double threshold : thresholds) {
+            const SplitCandidate candidate =
+                evaluate_candidate_threshold(
+                    X,
+                    y,
+                    sample_weight,
+                    feature_index,
+                    threshold,
+                    options
+                );
 
             if (is_better_split(candidate, best)) {
                 best = candidate;
