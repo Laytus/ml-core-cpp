@@ -1580,7 +1580,1442 @@ before classification.
 
 ---
 
-## 9. Recommended Implementation Order
+## 9. Random Forest Implementation Details
+
+Random Forest is an ensemble method built from many decision trees.
+
+A single decision tree is powerful but unstable. Small changes in the training data can produce a very different tree.
+
+Random Forest reduces this instability by training many different trees and aggregating their predictions.
+
+For classification, the final prediction is usually the majority vote across trees.
+
+```txt
+tree_1 predicts class 0
+tree_2 predicts class 1
+tree_3 predicts class 1
+
+Random Forest prediction:
+    class 1
+```
+
+The main idea is:
+
+```txt
+many high-variance trees
++ diversity between trees
++ voting / averaging
+= lower-variance ensemble
+```
+
+---
+
+### 9.1 Why Random Forest works
+
+A fully grown decision tree has low bias but high variance.
+
+This means:
+
+```txt
+low bias:
+    it can fit complex patterns
+
+high variance:
+    it changes a lot when the training data changes
+```
+
+Random Forest reduces variance by averaging or voting across many trees.
+
+The ensemble works best when individual trees are:
+
+```txt
+strong enough to learn useful patterns
+different enough from each other
+```
+
+If every tree is identical, the forest gives no benefit.
+
+The two main mechanisms used to make trees different are:
+
+```txt
+bootstrap sampling
+feature subsampling
+```
+
+---
+
+### 9.2 Bagging
+
+Random Forest is based on bagging.
+
+Bagging means:
+
+```txt
+bootstrap aggregating
+```
+
+The process is:
+
+```txt
+1. create many bootstrap samples from the training data
+2. train one tree on each bootstrap sample
+3. aggregate predictions from all trees
+```
+
+Each tree sees a slightly different dataset.
+
+This makes the trees different and reduces variance when their predictions are combined.
+
+---
+
+### 9.3 Bootstrap samples
+
+A bootstrap sample is created by sampling training rows **with replacement**.
+
+If the original dataset has `n` samples, each bootstrap sample usually also has `n` rows.
+
+Example:
+
+```txt
+original rows:
+    [0, 1, 2, 3, 4]
+
+bootstrap sample:
+    [0, 2, 2, 4, 1]
+```
+
+Some rows may appear multiple times.
+
+Some rows may not appear at all.
+
+This is intentional.
+
+The rows that do not appear in a given tree’s bootstrap sample are called **out-of-bag** rows for that tree.
+
+---
+
+### 9.4 Bootstrap sample properties
+
+Because sampling is done with replacement, each tree receives a noisy version of the original dataset.
+
+For large datasets, each bootstrap sample contains roughly:
+
+```txt
+about 63.2% unique original samples
+```
+
+and leaves roughly:
+
+```txt
+about 36.8% out-of-bag samples
+```
+
+This is an approximation, but it explains why out-of-bag evaluation is possible.
+
+The exact percentages are not required for implementation.
+
+What matters is:
+
+```txt
+bootstrap sample:
+    rows used to train a tree
+
+out-of-bag rows:
+    rows not used to train that tree
+```
+
+---
+
+### 9.5 Feature subsampling
+
+Random Forest also uses feature subsampling.
+
+At each split, instead of evaluating all features, each tree considers only a random subset of features.
+
+This is controlled by:
+
+```txt
+max_features
+```
+
+Example:
+
+```txt
+num_features = 10
+max_features = 3
+```
+
+At each node, the tree randomly chooses 3 features and searches for the best split only among those 3.
+
+This prevents all trees from repeatedly choosing the same strongest feature.
+
+Feature subsampling reduces correlation between trees.
+
+Lower correlation makes voting more useful.
+
+---
+
+### 9.6 Why bootstrap sampling alone is not enough
+
+If the dataset has one very strong feature, many bootstrapped trees may still choose the same first split.
+
+This can make the trees too similar.
+
+Feature subsampling solves this by sometimes hiding the strongest feature from a split.
+
+Then different trees discover different useful patterns.
+
+The forest becomes more diverse.
+
+This is why Random Forest uses both:
+
+```txt
+row randomness:
+    bootstrap samples
+
+feature randomness:
+    max_features at split time
+```
+
+---
+
+### 9.7 Ensemble voting
+
+For classification, each tree outputs a predicted class.
+
+The forest combines these predictions through majority voting.
+
+Example:
+
+```txt
+tree predictions:
+    [0, 1, 1, 2, 1]
+
+vote counts:
+    class 0 -> 1
+    class 1 -> 3
+    class 2 -> 1
+
+forest prediction:
+    class 1
+```
+
+If there is a tie, the implementation should use a deterministic rule.
+
+Recommended tie-breaking:
+
+```txt
+choose the smallest class index among tied classes
+```
+
+This matches the deterministic behavior already used for tree leaf majority class.
+
+---
+
+### 9.8 Prediction probabilities
+
+A Random Forest should also estimate class probabilities.
+
+For each sample:
+
+```txt
+probability(class k) =
+    number of trees predicting class k / number of trees
+```
+
+Example:
+
+```txt
+tree predictions:
+    [0, 1, 1, 1]
+
+probability(class 0) = 1 / 4 = 0.25
+probability(class 1) = 3 / 4 = 0.75
+```
+
+In ML Core, the first `RandomForestClassifier` implementation should include both:
+
+```cpp
+Vector predict(const Matrix& X) const;
+
+Matrix predict_proba(const Matrix& X) const;
+```
+
+`predict` returns the majority-vote class.
+
+`predict_proba` returns one row per sample and one column per class.
+
+Each row should sum to 1.0 because the probabilities are computed from the fraction of trees voting for each class.
+
+The predicted class should match the class with the highest predicted probability.
+
+Tie-breaking should remain deterministic. If two classes have the same probability, the smallest class index should win.
+
+---
+
+### 9.9 Out-of-bag intuition
+
+Out-of-bag evaluation uses the rows that were not selected in a tree’s bootstrap sample.
+
+For one tree:
+
+```txt
+bootstrap sample:
+    rows used to train this tree
+
+out-of-bag rows:
+    rows not used to train this tree
+```
+
+A row can be evaluated by the subset of trees where that row was out-of-bag.
+
+High-level process:
+
+```txt
+for each training row i:
+    collect predictions from trees where row i was out-of-bag
+    aggregate those predictions
+    compare against y_i
+```
+
+This gives an internal validation-like estimate without creating a separate validation set.
+
+---
+
+### 9.10 Why out-of-bag evaluation is useful
+
+Out-of-bag evaluation is useful because it gives an estimate of generalization performance while still allowing each tree to train on a full-size bootstrap sample.
+
+It can be used to compare settings such as:
+
+```txt
+number of trees
+max_features
+max_depth
+max_leaf_nodes
+bootstrap enabled/disabled
+```
+
+However, it adds implementation complexity.
+
+The first Random Forest implementation can defer out-of-bag scoring while still storing enough bootstrap information to add it later.
+
+---
+
+### 9.11 Random Forest options
+
+The Random Forest model should have its own options struct.
+
+Recommended first version:
+
+```cpp
+struct RandomForestOptions {
+    std::size_t n_estimators{100};
+    bool bootstrap{true};
+    std::optional<std::size_t> max_features{std::nullopt};
+    unsigned int random_seed{42};
+
+    DecisionTreeOptions tree_options{};
+};
+```
+
+Interpretation:
+
+```txt
+n_estimators:
+    number of trees in the forest
+
+bootstrap:
+    whether each tree trains on a bootstrap sample
+
+max_features:
+    number of features considered at each split
+
+random_seed:
+    controls reproducibility
+
+tree_options:
+    controls each individual DecisionTreeClassifier
+```
+
+Important design rule:
+
+```txt
+RandomForestOptions controls ensemble behavior.
+DecisionTreeOptions controls each tree.
+```
+
+This keeps ensemble orchestration separate from base tree logic.
+
+---
+
+### 9.12 How Random Forest should reuse the existing tree
+
+Random Forest should not copy decision tree code.
+
+It should reuse:
+
+```txt
+DecisionTreeClassifier
+DecisionTreeOptions
+max_features
+balanced class weights if enabled
+sample-weighted split scoring if needed later
+```
+
+The forest training loop should look conceptually like:
+
+```txt
+for tree_index in 0 .. n_estimators - 1:
+    create bootstrap sample
+    configure tree options
+    set per-tree random seed
+    fit DecisionTreeClassifier on bootstrap sample
+    store tree
+```
+
+Prediction should look like:
+
+```txt
+for each sample:
+    ask every tree for its prediction
+    majority vote
+```
+
+This makes Random Forest an orchestration layer over the base tree implementation.
+
+---
+
+### 9.13 Per-tree random seeds
+
+Each tree should receive a deterministic but different seed.
+
+Example:
+
+```txt
+forest random_seed = 42
+
+tree 0 seed = 42
+tree 1 seed = 43
+tree 2 seed = 44
+```
+
+or another deterministic seed sequence.
+
+This matters because each tree may use randomness for:
+
+```txt
+bootstrap sampling
+feature subsampling
+```
+
+Requirements:
+
+```txt
+same RandomForestOptions -> same fitted forest behavior
+different random_seed -> potentially different forest behavior
+```
+
+---
+
+### 9.14 Bootstrap utilities
+
+Before implementing `RandomForestClassifier`, Phase 6B should implement bootstrap utilities.
+
+Recommended helper outputs:
+
+```txt
+bootstrap sample X
+bootstrap sample y
+selected row indices
+out-of-bag row indices
+```
+
+A useful struct:
+
+```cpp
+struct BootstrapSample {
+    Matrix X;
+    Vector y;
+    std::vector<Eigen::Index> sampled_indices;
+    std::vector<Eigen::Index> out_of_bag_indices;
+};
+```
+
+For weighted training later, the struct may also include:
+
+```cpp
+Vector sample_weight;
+```
+
+But this should only be added when needed.
+
+---
+
+### 9.15 Bootstrap with replacement
+
+Implementation behavior:
+
+```txt
+input:
+    X, y, random_seed
+
+process:
+    sample n row indices from [0, n - 1] with replacement
+
+output:
+    X_bootstrap
+    y_bootstrap
+    sampled_indices
+    out_of_bag_indices
+```
+
+Validation:
+
+```txt
+X must be non-empty
+y must be non-empty
+X.rows() must equal y.size()
+```
+
+Expected properties:
+
+```txt
+X_bootstrap.rows() == X.rows()
+y_bootstrap.size() == y.size()
+sampled_indices.size() == X.rows()
+out_of_bag_indices.size() can vary
+```
+
+---
+
+### 9.16 Bootstrap disabled
+
+Some Random Forest variants allow training each tree on the full dataset while still using feature subsampling.
+
+If:
+
+```txt
+bootstrap = false
+```
+
+then each tree receives the full training dataset.
+
+This is less random, but it can still produce different trees if `max_features` is used and each tree has a different seed.
+
+For the first implementation:
+
+```txt
+bootstrap = true:
+    use bootstrap samples
+
+bootstrap = false:
+    train every tree on full X/y
+```
+
+---
+
+### 9.17 Minimum viable RandomForestClassifier
+
+The minimum useful model should expose:
+
+```cpp
+class RandomForestClassifier {
+public:
+    RandomForestClassifier();
+
+    explicit RandomForestClassifier(RandomForestOptions options);
+
+    void fit(const Matrix& X, const Vector& y);
+
+    Vector predict(const Matrix& X) const;
+
+    Matrix predict_proba(const Matrix& X) const;
+
+    bool is_fitted() const;
+
+    const RandomForestOptions& options() const;
+
+    std::size_t num_classes() const;
+
+    std::size_t num_trees() const;
+};
+```
+
+Required behavior:
+
+```txt
+reject invalid options
+reject empty or mismatched training data
+reject predict before fit
+reject predict_proba before fit
+fit n_estimators decision trees
+support deterministic random_seed
+support bootstrap on/off
+support max_features through tree options
+predict by majority vote
+predict_proba by vote fractions
+ensure predict_proba rows sum to 1
+use deterministic tie-breaking
+```
+
+The forest should infer the number of classes from the training targets.
+
+For the first implementation, labels should be non-negative integer-valued classes:
+
+```txt
+0, 1, 2, ...
+```
+
+This keeps `predict_proba` simple because each class maps directly to a probability column.
+
+---
+
+### 9.18 First implementation boundaries
+
+The first Random Forest implementation should include:
+
+```txt
+implemented:
+    bootstrap sampling
+    feature subsampling through max_features
+    deterministic seed support
+    majority-vote prediction with predict
+    probability prediction with predict_proba
+    basic validation
+    experiments
+
+optional / later:
+    out-of-bag score
+    sample_weight support
+    class_weight-specific experiments
+    regression forest
+```
+
+This keeps the implementation focused and compatible with the current Phase 6B goals while still providing the two most important prediction APIs:
+
+```txt
+predict:
+    final class prediction
+
+predict_proba:
+    vote-based class probability estimates
+```
+
+Out-of-bag scoring remains optional because it requires storing and aggregating per-tree out-of-bag predictions.
+
+---
+
+### 9.19 Random Forest experiments
+
+Useful experiments:
+
+```txt
+single tree vs random forest
+number of trees
+max_features comparison
+bootstrap vs no bootstrap
+```
+
+Expected files:
+
+```txt
+outputs/phase-6b-tree-ensembles/random_forest_comparison.csv
+outputs/phase-6b-tree-ensembles/random_forest_comparison.txt
+```
+
+Metrics:
+
+```txt
+accuracy
+number of trees
+bootstrap enabled
+max_features
+random_seed
+```
+
+For now, accuracy is enough because the project already has classification metrics.
+
+Later, macro F1 can be added for imbalanced datasets.
+
+---
+
+### 9.20 Random Forest completion criteria
+
+This Random Forest sub-phase is complete when:
+
+```txt
+bootstrap utilities are implemented and tested
+RandomForestClassifier fits multiple trees
+RandomForestClassifier predicts by majority vote
+same seed gives reproducible predictions
+invalid options are rejected
+experiments compare single tree and forest behavior
+```
+
+At that point, Phase 6B will have its first complete ensemble model.
+
+---
+
+## 10. Gradient Boosting Implementation Details
+
+Gradient Boosting is an ensemble method that builds a strong model by adding many weak models sequentially.
+
+Unlike Random Forest, where trees are trained mostly independently, Gradient Boosting trains trees one after another.
+
+Each new tree tries to correct the errors made by the current ensemble.
+
+The high-level idea is:
+
+```txt
+start with a simple initial prediction
+
+repeat:
+    measure current prediction errors
+    fit a small tree to correct those errors
+    add the new tree to the ensemble
+```
+
+So the final model is an additive model:
+
+```txt
+final_prediction =
+    initial_prediction
+    + contribution_from_tree_1
+    + contribution_from_tree_2
+    + ...
+    + contribution_from_tree_M
+```
+
+Gradient Boosting is powerful because it turns many simple weak learners into a strong predictive model.
+
+---
+
+### 10.1 Boosting vs bagging
+
+Random Forest is based on bagging.
+
+Bagging trains many models independently and combines their predictions.
+
+```txt
+Random Forest:
+    train trees independently
+    aggregate by voting or averaging
+```
+
+Gradient Boosting is different.
+
+Boosting trains models sequentially.
+
+```txt
+Gradient Boosting:
+    train tree 1
+    compute errors
+    train tree 2 to fix errors from tree 1
+    compute new errors
+    train tree 3 to fix remaining errors
+    ...
+```
+
+The main contrast is:
+
+```txt
+Random Forest:
+    reduce variance through averaging independent trees
+
+Gradient Boosting:
+    reduce bias by sequentially improving the model
+```
+
+In practice, Gradient Boosting can also control variance through shallow trees, learning rate, and number of estimators.
+
+---
+
+### 10.2 Additive models
+
+Gradient Boosting builds an additive model.
+
+For regression, the model can be written conceptually as:
+
+```txt
+F_M(x) = F_0(x) + eta * h_1(x) + eta * h_2(x) + ... + eta * h_M(x)
+```
+
+where:
+
+```txt
+F_M(x) = final model after M trees
+F_0(x) = initial prediction
+h_m(x) = tree added at step m
+eta = learning rate
+M = number of estimators
+```
+
+Each tree contributes a small correction.
+
+The model is not replaced at each step.
+
+It is updated by adding another tree.
+
+---
+
+### 10.3 Initial prediction
+
+For regression with squared error, a common initial prediction is the mean target value:
+
+```txt
+F_0(x) = mean(y)
+```
+
+This is the best constant prediction under mean squared error.
+
+Example:
+
+```txt
+y = [2, 4, 6]
+
+F_0 = 4
+```
+
+Before adding any trees, every sample receives prediction `4`.
+
+Then the first tree learns how to correct that constant baseline.
+
+---
+
+### 10.4 Residual fitting for squared-error regression
+
+For squared-error regression, the correction target is the residual:
+
+```txt
+residual_i = y_i - F(x_i)
+```
+
+where:
+
+```txt
+y_i = true target
+F(x_i) = current model prediction
+```
+
+The next tree is trained to predict these residuals.
+
+Example:
+
+```txt
+true y:
+    [2, 4, 6]
+
+current prediction:
+    [4, 4, 4]
+
+residuals:
+    [-2, 0, 2]
+```
+
+The next tree tries to map each `x_i` to its residual.
+
+Then the model is updated:
+
+```txt
+F_new(x) = F_old(x) + eta * tree_prediction(x)
+```
+
+---
+
+### 10.5 Gradient fitting
+
+The name “Gradient Boosting” comes from the more general idea of fitting the negative gradient of a loss function.
+
+For squared error:
+
+```txt
+loss = 1/2 * (y - F(x))^2
+```
+
+The negative gradient with respect to the prediction is:
+
+```txt
+y - F(x)
+```
+
+which is exactly the residual.
+
+So for squared-error regression:
+
+```txt
+negative gradient = residual
+```
+
+This is why the first implementation can focus on residual fitting.
+
+It gives a correct and intuitive version of Gradient Boosting without needing to implement the full general loss-function framework immediately.
+
+---
+
+### 10.6 Why start with `GradientBoostingRegressor`
+
+For this project, the recommended first target is:
+
+```txt
+GradientBoostingRegressor
+```
+
+not `GradientBoostingClassifier`.
+
+Reason:
+
+```txt
+regression boosting with squared error is simpler
+```
+
+It only requires:
+
+```txt
+initial prediction = mean(y)
+residuals = y - prediction
+fit shallow regression tree to residuals
+update prediction additively
+```
+
+Classification boosting is more complex because it usually needs:
+
+```txt
+log odds
+probabilities
+cross-entropy loss
+class-specific gradients
+multi-class handling
+```
+
+Therefore, the cleanest Phase 6B path is:
+
+```txt
+first:
+    implement GradientBoostingRegressor
+
+later:
+    implement GradientBoostingClassifier
+```
+
+---
+
+### 10.7 Need for regression trees
+
+The current Phase 6 tree is a classifier.
+
+It predicts class labels using majority vote in leaves.
+
+Gradient Boosting for squared-error regression needs trees that predict continuous values.
+
+That means we need a regression-tree weak learner.
+
+A regression tree differs from a classification tree in two main ways:
+
+```txt
+split criterion:
+    classification tree uses Gini or entropy
+    regression tree uses variance / squared-error reduction
+
+leaf prediction:
+    classification tree predicts majority class
+    regression tree predicts mean target value
+```
+
+For a first implementation, a simple regression tree should be enough.
+
+It does not need all advanced classifier features immediately.
+
+---
+
+### 10.8 Regression tree split criterion
+
+For regression, a split is good if it reduces squared error.
+
+At a node, the best constant prediction is the mean target value:
+
+```txt
+prediction = mean(y_node)
+```
+
+The node error can be measured as sum of squared errors:
+
+```txt
+SSE = sum_i (y_i - mean(y_node))^2
+```
+
+A candidate split creates left and right children.
+
+The split quality can be measured by error reduction:
+
+```txt
+reduction =
+    parent_sse - (left_sse + right_sse)
+```
+
+A good split has large positive reduction.
+
+This is analogous to impurity reduction in classification trees.
+
+---
+
+### 10.9 Shallow weak learners
+
+Gradient Boosting usually uses shallow trees.
+
+These trees are weak learners.
+
+Typical settings:
+
+```txt
+max_depth = 1
+max_depth = 2
+max_depth = 3
+```
+
+A depth-1 tree is called a decision stump.
+
+Using shallow trees is important because each tree should only make a small correction.
+
+If each tree is too strong, the boosting model can overfit quickly.
+
+So Gradient Boosting controls complexity through:
+
+```txt
+tree depth
+number of estimators
+learning rate
+minimum samples per split / leaf
+```
+
+---
+
+### 10.10 Learning rate / shrinkage
+
+The learning rate controls how much each new tree contributes.
+
+The update is:
+
+```txt
+F_new(x) = F_old(x) + learning_rate * h_m(x)
+```
+
+where:
+
+```txt
+h_m(x) = prediction from the new tree
+```
+
+If:
+
+```txt
+learning_rate = 1.0
+```
+
+the full tree correction is added.
+
+If:
+
+```txt
+learning_rate = 0.1
+```
+
+only 10% of the tree correction is added.
+
+Smaller learning rates usually require more trees but can generalize better.
+
+This is called shrinkage.
+
+---
+
+### 10.11 Number of estimators
+
+`n_estimators` is the number of boosting rounds.
+
+Each round adds one tree.
+
+Low `n_estimators`:
+
+```txt
+may underfit
+training is faster
+```
+
+High `n_estimators`:
+
+```txt
+can fit more complex patterns
+may overfit if learning_rate is too large
+training is slower
+```
+
+There is a trade-off between:
+
+```txt
+learning_rate
+n_estimators
+tree depth
+```
+
+Common pattern:
+
+```txt
+smaller learning_rate
++ more estimators
+= smoother improvement
+```
+
+---
+
+### 10.12 Staged predictions
+
+Staged predictions are predictions after each boosting round.
+
+Example:
+
+```txt
+stage 0:
+    initial mean prediction
+
+stage 1:
+    mean + tree_1 correction
+
+stage 2:
+    mean + tree_1 correction + tree_2 correction
+
+stage 3:
+    mean + tree_1 correction + tree_2 correction + tree_3 correction
+```
+
+Staged predictions are useful for understanding training behavior.
+
+They allow us to track:
+
+```txt
+training loss over boosting rounds
+validation loss over boosting rounds
+overfitting behavior
+```
+
+In the implementation, staged predictions can be stored as training history.
+
+A simple first version can store:
+
+```txt
+training_loss_history
+```
+
+where each entry is the mean squared error after adding a tree.
+
+---
+
+### 10.13 Gradient Boosting options
+
+The model should have its own options struct.
+
+Recommended first version:
+
+```cpp
+struct GradientBoostingRegressorOptions {
+    std::size_t n_estimators{100};
+    double learning_rate{0.1};
+    std::size_t max_depth{2};
+    std::size_t min_samples_split{2};
+    std::size_t min_samples_leaf{1};
+    unsigned int random_seed{42};
+};
+```
+
+Validation:
+
+```txt
+n_estimators >= 1
+learning_rate must be finite and > 0
+max_depth >= 1
+min_samples_split >= 2
+min_samples_leaf >= 1
+```
+
+The first implementation does not need randomness unless feature subsampling is added later.
+
+Still, keeping `random_seed` in the options makes the API future-ready.
+
+---
+
+### 10.14 Minimum viable `GradientBoostingRegressor`
+
+The minimum useful model should expose:
+
+```cpp
+class GradientBoostingRegressor {
+public:
+    GradientBoostingRegressor();
+
+    explicit GradientBoostingRegressor(
+        GradientBoostingRegressorOptions options
+    );
+
+    void fit(const Matrix& X, const Vector& y);
+
+    Vector predict(const Matrix& X) const;
+
+    bool is_fitted() const;
+
+    const GradientBoostingRegressorOptions& options() const;
+
+    const std::vector<double>& training_loss_history() const;
+};
+```
+
+Required behavior:
+
+```txt
+reject invalid options
+reject empty or mismatched training data
+reject predict before fit
+start from mean target prediction
+train n_estimators shallow regression trees
+update residuals stage by stage
+store training loss history
+predict by summing all tree contributions
+```
+
+---
+
+### 10.15 Required helper: regression tree
+
+Because the current `DecisionTreeClassifier` cannot predict continuous residuals, we need a regression-tree helper.
+
+Recommended minimal API:
+
+```cpp
+class DecisionTreeRegressor {
+public:
+    DecisionTreeRegressor();
+
+    explicit DecisionTreeRegressor(DecisionTreeRegressorOptions options);
+
+    void fit(const Matrix& X, const Vector& y);
+
+    Vector predict(const Matrix& X) const;
+
+    bool is_fitted() const;
+};
+```
+
+This can reuse ideas from the classifier tree but should be implemented separately if that keeps the code cleaner.
+
+Reason:
+
+```txt
+classification tree:
+    Gini / entropy
+    majority class leaves
+
+regression tree:
+    squared-error reduction
+    mean-value leaves
+```
+
+Trying to force both into the same builder too early may make the tree code harder to understand.
+
+---
+
+### 10.16 Regression tree options
+
+Recommended first version:
+
+```cpp
+struct DecisionTreeRegressorOptions {
+    std::size_t max_depth{2};
+    std::size_t min_samples_split{2};
+    std::size_t min_samples_leaf{1};
+    double min_error_decrease{0.0};
+};
+```
+
+This mirrors the classifier tree stopping rules but uses regression terminology.
+
+Validation:
+
+```txt
+max_depth >= 1
+min_samples_split >= 2
+min_samples_leaf >= 1
+min_error_decrease must be finite and >= 0
+```
+
+---
+
+### 10.17 Regression tree prediction
+
+Each regression-tree leaf predicts the mean target value of samples reaching that leaf.
+
+Example:
+
+```txt
+leaf targets:
+    [1.5, 2.0, 2.5]
+
+leaf prediction:
+    2.0
+```
+
+At prediction time, a sample follows the tree splits until it reaches a leaf.
+
+The leaf value is returned as the tree prediction.
+
+This prediction is then used as the boosting correction.
+
+---
+
+### 10.18 Gradient Boosting training loop
+
+High-level training loop for squared-error Gradient Boosting:
+
+```txt
+initial_prediction = mean(y)
+
+current_predictions = vector filled with initial_prediction
+
+for m in 1..n_estimators:
+    residuals = y - current_predictions
+
+    fit regression_tree_m on X, residuals
+
+    correction = regression_tree_m.predict(X)
+
+    current_predictions =
+        current_predictions + learning_rate * correction
+
+    record training MSE
+```
+
+After fitting, prediction on new data is:
+
+```txt
+prediction = initial_prediction
+
+for each tree:
+    prediction += learning_rate * tree.predict(x)
+```
+
+---
+
+### 10.19 Loss history
+
+Training loss should be recorded after each boosting round.
+
+For squared-error regression, use mean squared error:
+
+```txt
+MSE = mean((y - prediction)^2)
+```
+
+Expected behavior:
+
+```txt
+training_loss_history.size() == n_estimators
+```
+
+In simple datasets, loss should generally decrease.
+
+It may not strictly decrease in every possible dataset or with every option setting, but tests can use a controlled dataset where it does.
+
+---
+
+### 10.20 First implementation boundaries
+
+The first Gradient Boosting implementation should include:
+
+```txt
+implemented:
+    DecisionTreeRegressor
+    GradientBoostingRegressor
+    squared-error loss
+    residual fitting
+    learning_rate
+    shallow weak learners
+    training loss history
+    validation tests
+    experiments
+
+deferred:
+    GradientBoostingClassifier
+    logistic / cross-entropy boosting
+    multi-class boosting
+    stochastic subsampling
+    feature subsampling
+    sample weights
+    early stopping
+```
+
+This gives a serious and coherent first implementation without overloading the phase.
+
+---
+
+### 10.21 Gradient Boosting experiments
+
+Useful experiments:
+
+```txt
+number of estimators
+learning rate
+tree depth
+single tree vs boosted trees
+training loss history
+```
+
+Expected files:
+
+```txt
+outputs/phase-6b-tree-ensembles/gradient_boosting_comparison.csv
+outputs/phase-6b-tree-ensembles/gradient_boosting_comparison.txt
+outputs/phase-6b-tree-ensembles/gradient_boosting_loss_history.csv
+```
+
+Metrics:
+
+```txt
+MSE
+RMSE
+number of estimators
+learning rate
+max_depth
+initial prediction
+final training loss
+```
+
+This will connect naturally with the regression metrics already implemented earlier in the project.
+
+---
+
+### 10.22 Gradient Boosting completion criteria
+
+This Gradient Boosting sub-phase is complete when:
+
+```txt
+DecisionTreeRegressor is implemented and tested
+GradientBoostingRegressor fits residuals sequentially
+learning_rate affects updates
+training loss history is stored
+predict works on new data
+experiments compare estimator count, learning rate, and tree depth
+```
+
+At that point, Phase 6B has both major ensemble families:
+
+```txt
+Random Forest:
+    bagging + feature randomness + voting
+
+Gradient Boosting:
+    sequential residual correction + shrinkage
+```
+
+---
+
+## Recommended Implementation Order
 
 The recommended Phase 6B order is:
 
@@ -1609,7 +3044,7 @@ do not break the clean Phase 6 tree while adding advanced features
 
 ---
 
-## 10. Phase 6B Scope Decision
+## Phase 6B Scope Decision
 
 Phase 6B is intentionally ambitious.
 

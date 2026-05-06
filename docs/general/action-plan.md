@@ -702,38 +702,41 @@ This phase exists to turn the single-tree implementation into a broader tree-lea
   - unpruned vs pruned tree behavior
 
 #### Random Forest
-- [ ] Write theory for Random Forest implementation details:
+- [x] Write theory for Random Forest implementation details:
   - bagging
   - bootstrap samples
   - feature subsampling
   - ensemble voting
   - out-of-bag intuition
-- [ ] Implement bootstrap sampling utilities
-- [ ] Implement feature-subsampling support using `max_features`
-- [ ] Implement `RandomForestClassifier`
-- [ ] Implement majority-vote prediction aggregation
-- [ ] Add deterministic random seed support
-- [ ] Add optional out-of-bag evaluation if feasible
-- [ ] Add experiments comparing:
+- [x] Implement bootstrap sampling utilities
+- [x] Implement feature-subsampling support using `max_features`
+- [x] Implement `RandomForestClassifier`
+- [x] Implement majority-vote prediction aggregation with `predict`
+- [x] Implement class-probability aggregation with `predict_proba`
+- [x] Add deterministic random seed support
+- [x] Add optional out-of-bag evaluation if feasible
+  - Deferred: bootstrap utilities already expose out-of-bag indices, but full OOB scoring is postponed to keep Phase 6B focused on Random Forest and Gradient Boosting implementations.
+- [x] Add experiments comparing:
   - single tree vs random forest
   - number of trees
   - `max_features`
   - bootstrap vs no bootstrap
+  - predicted classes vs predicted probabilities
 
 #### Gradient Boosting
-- [ ] Write theory for Gradient Boosting implementation details:
+- [x] Write theory for Gradient Boosting implementation details:
   - additive models
   - residual / gradient fitting
   - learning rate / shrinkage
   - shallow weak learners
   - staged predictions
-- [ ] Decide first target:
-  - `GradientBoostingRegressor`
-  - or `GradientBoostingClassifier`
-- [ ] Implement the first Gradient Boosting model using shallow trees
-- [ ] Implement learning-rate support
-- [ ] Implement staged training history
-- [ ] Add experiments comparing:
+- [x] Decide first target:
+  - first implementation: `GradientBoostingRegressor`
+  - deferred: `GradientBoostingClassifier`
+- [x] Implement the first Gradient Boosting model using shallow trees
+- [x] Implement learning-rate support
+- [x] Implement staged training history
+- [x] Add experiments comparing:
   - number of estimators
   - learning rate
   - tree depth
@@ -772,22 +775,22 @@ This phase exists to turn the single-tree implementation into a broader tree-lea
 - weighted split behavior where needed
 - optional learned missing-value direction if implemented
 - optional cost-complexity pruning implementation
-- Random Forest implementation
+- Random Forest implementation with both `predict` and `predict_proba`
 - Gradient Boosting implementation
 - ensemble comparison experiments
 - documented decision boundaries between single-tree logic and ensemble orchestration
 
 ### Exit criteria
-- [ ] Advanced tree options are clearly documented, implemented, and tested
-- [ ] `max_leaf_nodes` works or is explicitly deferred with justification
-- [ ] `max_features` works and can be reused by Random Forest
-- [ ] class/sample weighting behavior is documented and tested where implemented
-- [ ] missing-value behavior is explicit and tested, starting with rejection of unsupported missing values
-- [ ] pruning is either implemented or honestly documented as deferred
-- [ ] Random Forest is implemented as a reusable model, not only a demo
-- [ ] Gradient Boosting is implemented as a reusable model, not only a demo
-- [ ] Experiments compare single tree, Random Forest, and Gradient Boosting behavior
-- [ ] The tree module remains cleanly separated between base tree logic, advanced tree controls, and ensemble orchestration
+- [x] Advanced tree options are clearly documented, implemented, and tested
+- [x] `max_leaf_nodes` works or is explicitly deferred with justification
+- [x] `max_features` works and can be reused by Random Forest
+- [x] class/sample weighting behavior is documented and tested where implemented
+- [x] missing-value behavior is explicit and tested, starting with rejection of unsupported missing values
+- [x] pruning is either implemented or honestly documented as deferred
+- [x] Random Forest is implemented as a reusable model, with both class prediction and probability prediction
+- [x] Gradient Boosting is implemented as a reusable model, not only a demo
+- [x] Experiments compare single tree, Random Forest, and Gradient Boosting behavior
+- [x] The tree module remains cleanly separated between base tree logic, advanced tree controls, and ensemble orchestration
 
 ### Optimization note
 Do not implement Random Forest or Gradient Boosting by copying the Decision Tree code into new models.

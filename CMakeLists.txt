@@ -41,6 +41,10 @@ add_library(ml_core
     src/trees/decision_tree.cpp
     src/trees/best_first_tree_builder.cpp
     src/trees/class_weights.cpp
+    src/trees/bootstrap.cpp
+    src/trees/random_forest.cpp
+    src/trees/regression_tree.cpp
+    src/trees/gradient_boosting.cpp
 )
 
 target_include_directories(ml_core
