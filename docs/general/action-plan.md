@@ -807,51 +807,172 @@ This phase should deepen the tree system without turning it into an unstructured
 
 ## Phase 7 – Distance and Kernel Thinking
 
-**Goal:** Complete the classical ML intuition around geometry, neighborhoods, and margins.
+**Goal:** Complete the classical ML intuition around geometry, neighborhoods, margins, and kernels, while adding a focused primal `LinearSVM` extension and keeping full kernel SVM deferred.
 
-**Level:** B
+**Level:** B+
 
-**Estimated effort:** 8–14 hours
+**Estimated effort:** 16–28 hours
 
 ### Why this phase exists
 This phase fills the geometric part of ML intuition that is often underdeveloped before DL.
 
+It should make distance-based learning, neighborhood behavior, margins, and kernels concrete enough to understand their role in classical ML.
+
+The core Phase 7 work covers distance metrics, multivariate k-NN, lightweight kernel utilities, and SVM/kernel intuition demos.
+
+After completing the core work, the phase is extended with a serious but focused `LinearSVM` implementation using the primal hinge-loss formulation.
+
+Full kernel SVM remains deferred because it requires dual optimization / SMO-style machinery and would be too large for this phase.
+
 ### Prerequisites
-- Phases 0–6 complete
+- Phases 0–6B complete
+- reusable dataset validation utilities available
+- classification metrics available
+- Eigen-based vector and matrix types available
+- optimization concepts from Phase 5 understood
+- logistic/binary classification workflow from Phase 4 available for comparison
+
+### Scope decision
+Phase 7 implements:
+- reusable distance metrics
+- a multivariate k-NN classifier
+- simple reusable kernel functions
+- small experiments/demos for distance and kernel behavior
+- SVM margin/kernel theory at demo level
+- a focused `LinearSVM` classifier using primal hinge-loss optimization
+
+Phase 7 explicitly defers:
+- full kernel SVM
+- SMO
+- dual optimization
+- alpha coefficient solving
+- nonlinear SVM decision functions
+
+Reason:
+- a serious linear SVM is feasible and educational after the Phase 7 core
+- a linear SVM reinforces margin, hinge loss, regularization, and binary classification concepts
+- a real kernel SVM requires dual constrained optimization and is large enough to deserve a future dedicated phase
+- reusable kernel functions are still useful now, even without a kernel SVM solver
 
 ### Detailed tasks
-- [ ] Write theory for multivariate k-NN and distance metrics
-- [ ] Write theory for curse of dimensionality
-- [ ] Write theory for margins and SVM intuition
-- [ ] Write theory for kernels and feature-space lifting intuition
-- [ ] Upgrade k-NN from the earlier simplified form into a more serious multivariate experimental setting where useful
-- [ ] Add experiments comparing different metrics or neighborhood behavior where useful
-- [ ] Keep SVM and kernel work at theory + small demo level unless deeper implementation becomes clearly justified
+- [x] Write theory for multivariate k-NN and distance metrics
+- [x] Write theory for curse of dimensionality
+- [x] Write theory for margins and SVM intuition
+- [x] Write theory for kernels and feature-space lifting intuition
+- [x] Implement reusable distance metrics:
+  - Euclidean distance
+  - Manhattan distance
+  - squared Euclidean distance
+- [x] Implement multivariate `KNNClassifier`
+- [x] Add deterministic tie-breaking for k-NN voting
+- [x] Add experiments comparing:
+  - different `k` values
+  - Euclidean vs Manhattan distance
+  - local neighborhood behavior
+- [x] Implement simple reusable kernel functions:
+  - `linear_kernel`
+  - `polynomial_kernel`
+  - `rbf_kernel`
+- [x] Add small kernel behavior demo/tests showing similarity behavior
+- [x] Keep SVM and kernel SVM work at theory + small demo level:
+  - margin intuition
+  - soft-margin intuition
+  - kernel trick intuition
+  - no full SVM solver in the main Phase 7 core scope
+- [x] Reassess after Phase 7 core is complete whether to add a serious `LinearSVM` extension
+  - Decision: implement a focused primal `LinearSVM` extension
+- [x] Explicitly defer full kernel SVM / SMO / dual optimization unless a future dedicated phase is created
+
+#### LinearSVM extension
+- [x] Write implementation notes for primal linear SVM:
+  - binary labels mapped from `{0, 1}` to `{-1, +1}`
+  - linear score `w^T x + b`
+  - margin condition `y * score >= 1`
+  - hinge loss
+  - L2 regularization
+  - SGD or batch-style training loop
+- [x] Implement `LinearSVMOptions`
+- [x] Implement `LinearSVM`
+- [x] Add `fit`, `decision_function`, `predict`, and `is_fitted`
+- [x] Add deterministic training behavior
+- [x] Add L2 regularization strength support
+- [x] Store training loss history
+- [x] Add tests for:
+  - option validation
+  - binary target validation
+  - predict before fit rejection
+  - separable binary classification
+  - margin/decision score sign behavior
+  - regularization and learning-rate validation
+  - training loss history
+- [x] Add `LinearSVM` to the Phase 7 comparison workflow:
+  - k-NN vs LinearSVM on a simple separable dataset
+  - LogisticRegression vs LinearSVM if practical
+  - margin/decision-score export
+- [x] Add experiments comparing:
+  - different regularization strengths
+  - different learning rates
+  - margin behavior
+  - k-NN vs LinearSVM decision behavior
 
 ### Expected files / deliverables
 - theory doc:
   - `docs/theory/distance-and-kernel-thinking.md`
-- optional upgraded k-NN files:
-  - `include/ml/distance/knn_classifier.hpp`
+- distance and k-NN headers/sources:
   - `include/ml/distance/distance_metrics.hpp`
-  - `src/distance/knn_classifier.cpp`
   - `src/distance/distance_metrics.cpp`
-- optional small SVM/kernel demo docs/notes:
+  - `include/ml/distance/knn_classifier.hpp`
+  - `src/distance/knn_classifier.cpp`
+- kernel headers/sources:
+  - `include/ml/distance/kernels.hpp`
+  - `src/distance/kernels.cpp`
+- LinearSVM headers/sources:
+  - `include/ml/linear_models/linear_svm.hpp`
+  - `src/linear_models/linear_svm.cpp`
+- experiment folders:
   - `experiments/phase-7-distance-kernel/`
   - `outputs/phase-7-distance-kernel/`
+- SVM/kernel demo outputs:
+  - `outputs/phase-7-distance-kernel/svm_margin_intuition.txt`
+  - `outputs/phase-7-distance-kernel/kernel_similarity_demo.csv`
+- LinearSVM outputs:
+  - `outputs/phase-7-distance-kernel/linear_svm_comparison.csv`
+  - `outputs/phase-7-distance-kernel/linear_svm_comparison.txt`
+  - `outputs/phase-7-distance-kernel/linear_svm_margin_behavior.csv`
 
 ### Concrete outputs
-- stronger distance-based learning theory docs
-- upgraded k-NN experiments
-- SVM/kernel conceptual bridge docs
+- multivariate distance metrics
+- reusable k-NN classifier
+- k-NN neighborhood experiments
+- reusable kernel functions
+- kernel similarity demo/tests
+- SVM and kernel theory notes
+- reusable `LinearSVM` classifier
+- LinearSVM comparison experiments
+- explicit deferral of full kernel SVM implementation
 
 ### Exit criteria
-- [ ] Distance-based learning is covered beyond the earlier toy intuition
-- [ ] Curse of dimensionality is explicitly understood and documented
-- [ ] Margin and kernel ideas are clear enough to recognize their importance without needing a full solver implementation
+- [x] Distance-based learning is covered beyond the earlier toy intuition
+- [x] k-NN works as a reusable multivariate classifier
+- [x] Different distance metrics can be compared experimentally
+- [x] Curse of dimensionality is explicitly understood and documented
+- [x] Margin and SVM ideas are clear enough to recognize their importance without needing a full kernel solver implementation
+- [x] Kernel functions are implemented and tested as reusable utilities
+- [x] Full kernel SVM implementation is explicitly deferred with justification
+- [x] A final decision is made on whether to add a `LinearSVM` extension after the core Phase 7 work
+- [x] `LinearSVM` is implemented as a reusable binary classifier
+- [x] `LinearSVM` exposes decision scores and class predictions
+- [x] `LinearSVM` training uses hinge-loss margin logic with L2 regularization
+- [x] `LinearSVM` is compared experimentally against the Phase 7 k-NN workflow
 
 ### Optimization note
-This phase should deepen geometric intuition, not become a heavy optimization-project detour.
+This phase should deepen geometric intuition, not become a heavy kernel-optimization detour.
+
+The core phase remains focused on distance metrics, k-NN, and lightweight kernels.
+
+The `LinearSVM` extension is allowed because it is a manageable primal optimization model that reinforces margin-based learning.
+
+Full kernel SVM remains deferred because it requires dual constrained optimization and should be treated as a future dedicated phase if implemented.
 
 ---
 
@@ -1104,7 +1225,7 @@ Approximate hours per phase:
 - Phase 5: 14–22 h
 - Phase 6: 16–24 h
 - Phase 6B: 24–40 h
-- Phase 7: 8–14 h
+- Phase 7: 16–28 h
 - Phase 8: 14–22 h
 - Phase 9: 10–16 h
 - Phase 10: 14–22 h
@@ -1152,7 +1273,7 @@ This is the project meant to build the actual base layer that was still missing.
 | 5. Optimization for ML | A | 14–22 | Batch/SGD/mini-batch/momentum framework | Optimization theory doc | Shared optimizer logic works across models |
 | 6. Trees and Ensembles | B | 16–24 | Simple recursive Decision Tree | Trees/ensembles theory doc | Real tree builder works and ensembles are conceptually covered |
 | 6B. Tree Ensembles and Advanced Tree Features | A | 24–40 | Random Forest, Gradient Boosting, advanced tree controls | Tree ensembles and advanced tree theory | Ensemble models work and reuse the base tree cleanly |
-| 7. Distance and Kernel Thinking | B | 8–14 | Upgraded k-NN experiments | Distance/kernel theory doc | Distance, margins, and kernels are conceptually integrated |
+| 7. Distance and Kernel Thinking | B+ | 16–28 | Distance metrics, KNNClassifier, kernels, LinearSVM | Distance/kernel theory doc, SVM/LinearSVM notes | Distance, k-NN, margins, kernels, and LinearSVM are implemented or conceptually integrated |
 | 8. Unsupervised Learning | A | 14–22 | k-means, PCA | Unsupervised-learning theory doc | Real unsupervised implementations and experiments exist |
 | 9. Probabilistic ML Essentials | B | 10–16 | One lightweight probabilistic model or demo | Probabilistic-ML theory doc | Likelihood-based thinking is clearly integrated |
 | 10. Bridge to Deep Learning | A | 14–22 | Tiny perceptron/MLP bridge | DL-bridge theory doc | Backprop and DL transition are conceptually natural |

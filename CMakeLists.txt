@@ -45,6 +45,10 @@ add_library(ml_core
     src/trees/random_forest.cpp
     src/trees/regression_tree.cpp
     src/trees/gradient_boosting.cpp
+    src/distance/distance_metrics.cpp
+    src/distance/knn_classifier.cpp
+    src/distance/kernels.cpp
+    src/linear_models/linear_svm.cpp
 )
 
 target_include_directories(ml_core
@@ -77,6 +81,7 @@ add_executable(ml_core_tests
     experiments/phase-5-optimization/phase5_optimization_sanity.cpp
     experiments/phase-6-trees-ensembles/phase6_trees_sanity.cpp
     experiments/phase-6-trees-ensembles/phase6b_trees_ensembles_sanity.cpp
+    experiments/phase-7-distance-kernel/phase7_distance_kernel_sanity.cpp
 )
 
 target_include_directories(ml_core_tests
@@ -88,6 +93,7 @@ target_include_directories(ml_core_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-4-logistic-regression
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-5-optimization
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-6-trees-ensembles
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-7-distance-kernel
 )
 
 target_link_libraries(ml_core_tests
