@@ -7,6 +7,7 @@
 #include "phase6_trees_sanity.hpp"
 #include "phase6b_trees_ensembles_sanity.hpp"
 #include "phase7_distance_kernel_sanity.hpp"
+#include "phase8_unsupervised_sanity.hpp"
 
 int main() {
     // ml::experiments::run_phase1_math_sanity();
@@ -17,7 +18,8 @@ int main() {
     // ml::experiments::run_phase5_optimization_sanity();
     // ml::experiments::run_phase6_trees_sanity();
     // ml::experiments::run_phase6b_trees_ensembles_sanity();
-    ml::experiments::run_phase7_distance_kernel_sanity();
+    // ml::experiments::run_phase7_distance_kernel_sanity();
+    ml::experiments::run_phase8_unsupervised_sanity();
 
     return 0;
 }

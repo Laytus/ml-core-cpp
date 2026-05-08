@@ -993,15 +993,16 @@ It is too important to leave as a side note.
 - Phases 0–7 complete
 
 ### Detailed tasks
-- [ ] Write theory for clustering fundamentals
-- [ ] Write theory for k-means objective and centroid behavior
-- [ ] Write theory for PCA, covariance, principal directions, and explained variance
-- [ ] Implement k-means
-- [ ] Implement cluster assignment and centroid update loops cleanly
-- [ ] Implement PCA using Eigen-supported matrix operations
-- [ ] Add dimensionality-reduction experiments
-- [ ] Add reconstruction / explained variance experiments where useful
-- [ ] Compare unsupervised representations qualitatively through saved outputs/plots
+- [x] Write theory for clustering fundamentals
+- [x] Write theory for k-means objective and centroid behavior
+- [x] Write theory for PCA, covariance, principal directions, and explained variance
+- [x] Implement k-means
+- [x] Implement cluster assignment and centroid update loops cleanly
+- [x] Add k-means experiments comparing different k values and inertia
+- [x] Implement PCA using Eigen-supported matrix operations
+- [x] Add dimensionality-reduction experiments
+- [x] Add reconstruction / explained variance experiments where useful
+- [x] Compare unsupervised representations qualitatively through saved outputs/plots
 
 ### Expected files / deliverables
 - theory doc:
@@ -1022,10 +1023,10 @@ It is too important to leave as a side note.
 - unsupervised learning theory docs
 
 ### Exit criteria
-- [ ] k-means runs end-to-end in a reusable way
-- [ ] PCA exists as a real implementation, not only a theory note
-- [ ] There are experiments showing at least variance or dimensionality-reduction behavior
-- [ ] The connection between covariance structure and PCA is clearly documented
+- [x] k-means runs end-to-end in a reusable way
+- [x] PCA exists as a real implementation, not only a theory note
+- [x] There are experiments showing at least variance or dimensionality-reduction behavior
+- [x] The connection between covariance structure and PCA is clearly documented
 
 ### Optimization note
 This phase is worth implementing seriously because it builds representation intuition that matters before DL.
