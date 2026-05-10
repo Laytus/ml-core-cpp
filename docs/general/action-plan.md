@@ -1122,18 +1122,25 @@ It should make DL feel like a natural extension of concepts already understood r
 - Phases 0–9 complete
 
 ### Detailed tasks
-- [ ] Write theory for perceptron and its limitations
-- [ ] Write theory for multilayer perceptron intuition
-- [ ] Write theory for forward propagation in vectorized form
-- [ ] Write theory for backpropagation as structured chain rule
-- [ ] Write theory for activation functions in the neural-network context
-- [ ] Write theory for neural networks as layered differentiable computation
-- [ ] Design a tiny neural-network bridge module
-- [ ] Implement a minimal perceptron or tiny MLP demo
-- [ ] Implement vectorized forward pass
-- [ ] Implement the simplest backprop-supporting logic needed for the bridge
-- [ ] Explicitly connect previous optimization phases to neural-network training logic
-- [ ] Summarize what stays the same from ML to DL and what changes
+- [x] Write theory for perceptron and its limitations
+- [x] Write theory for multilayer perceptron intuition
+- [x] Write theory for forward propagation in vectorized form
+- [x] Write theory for backpropagation as structured chain rule
+- [x] Write theory for activation functions in the neural-network context
+- [x] Write theory for neural networks as layered differentiable computation
+- [x] Design the `dl_bridge` module
+  - Decision: implement `Perceptron` and `TinyMLPBinaryClassifier`
+  - Perceptron architecture: `input -> linear score -> hard threshold`
+  - MLP architecture: `input -> hidden layer -> ReLU -> output layer -> sigmoid`
+  - MLP loss: binary cross-entropy
+  - MLP training: mini-batch gradient descent
+- [x] Implement `dl_bridge/perceptron`
+- [x] Implement `dl_bridge/mlp`
+- [x] Implement vectorized MLP forward pass
+- [x] Implement manual backpropagation for the MLP bridge
+- [x] Add a tiny MLP binary classification demo
+- [x] Explicitly connect previous optimization phases to neural-network training logic
+- [x] Summarize what stays the same from ML to DL and what changes
 
 ### Expected files / deliverables
 - theory doc:
@@ -1143,7 +1150,7 @@ It should make DL feel like a natural extension of concepts already understood r
   - `include/ml/dl_bridge/mlp.hpp`
   - `src/dl_bridge/perceptron.cpp`
   - `src/dl_bridge/mlp.cpp`
-- optional helper files:
+- helper files:
   - `include/ml/dl_bridge/activations.hpp`
   - `src/dl_bridge/activations.cpp`
 - experiment folders:
@@ -1156,9 +1163,9 @@ It should make DL feel like a natural extension of concepts already understood r
 - explicit conceptual mapping from classical ML to DL
 
 ### Exit criteria
-- [ ] You can explain backprop as chain rule over layered computation clearly
-- [ ] There is a concrete minimal neural-network bridge artifact in code or demo form
-- [ ] The conceptual transition from logistic regression / optimization to neural nets is explicit and documented
+- [x] You can explain backprop as chain rule over layered computation clearly
+- [x] There is a concrete minimal neural-network bridge artifact in code or demo form
+- [x] The conceptual transition from logistic regression / optimization to neural nets is explicit and documented
 
 ### Optimization note
 This phase should stop exactly at the point where the DL project can begin cleanly.

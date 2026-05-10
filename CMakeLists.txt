@@ -52,6 +52,9 @@ add_library(ml_core
     src/unsupervised/kmeans.cpp
     src/unsupervised/pca.cpp
     src/probabilistic/naive_bayes.cpp
+    src/dl_bridge/perceptron.cpp
+    src/dl_bridge/activation.cpp
+    src/dl_bridge/mlp.cpp
 )
 
 target_include_directories(ml_core
@@ -87,6 +90,7 @@ add_executable(ml_core_tests
     experiments/phase-7-distance-kernel/phase7_distance_kernel_sanity.cpp
     experiments/phase-8-unsupervised/phase8_unsupervised_sanity.cpp
     experiments/phase-9-probabilistic-ml/phase9_probabilistic_ml_sanity.cpp
+    experiments/phase-10-dl-bridge/phase10_dl_bridge_sanity.cpp
 )
 
 target_include_directories(ml_core_tests
@@ -101,6 +105,7 @@ target_include_directories(ml_core_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-7-distance-kernel
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-8-unsupervised
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-9-probabilistic-ml
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-10-dl-bridge
 )
 
 target_link_libraries(ml_core_tests

@@ -9,6 +9,7 @@
 #include "phase7_distance_kernel_sanity.hpp"
 #include "phase8_unsupervised_sanity.hpp"
 #include "phase9_probabilistic_ml_sanity.hpp"
+#include "phase10_dl_bridge_sanity.hpp"
 
 int main() {
     // ml::experiments::run_phase1_math_sanity();
@@ -21,7 +22,8 @@ int main() {
     // ml::experiments::run_phase6b_trees_ensembles_sanity();
     // ml::experiments::run_phase7_distance_kernel_sanity();
     // ml::experiments::run_phase8_unsupervised_sanity();
-    ml::experiments::run_phase9_probabilistic_ml_sanity();
+    // ml::experiments::run_phase9_probabilistic_ml_sanity();
+    ml::experiments::run_phase10_dl_bridge_sanity();
 
     return 0;
 }
