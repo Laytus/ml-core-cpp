@@ -51,6 +51,7 @@ add_library(ml_core
     src/linear_models/linear_svm.cpp
     src/unsupervised/kmeans.cpp
     src/unsupervised/pca.cpp
+    src/probabilistic/naive_bayes.cpp
 )
 
 target_include_directories(ml_core
@@ -85,6 +86,7 @@ add_executable(ml_core_tests
     experiments/phase-6-trees-ensembles/phase6b_trees_ensembles_sanity.cpp
     experiments/phase-7-distance-kernel/phase7_distance_kernel_sanity.cpp
     experiments/phase-8-unsupervised/phase8_unsupervised_sanity.cpp
+    experiments/phase-9-probabilistic-ml/phase9_probabilistic_ml_sanity.cpp
 )
 
 target_include_directories(ml_core_tests
@@ -98,6 +100,7 @@ target_include_directories(ml_core_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-6-trees-ensembles
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-7-distance-kernel
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-8-unsupervised
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-9-probabilistic-ml
 )
 
 target_link_libraries(ml_core_tests

@@ -1048,32 +1048,57 @@ Many ML ideas become much clearer once likelihood, uncertainty, and probabilisti
 - Phases 0–8 complete
 
 ### Detailed tasks
-- [ ] Write theory for maximum likelihood and MAP intuition
-- [ ] Write theory for probabilistic outputs and uncertainty concepts
-- [ ] Write theory for Naive Bayes and simple Gaussian-model thinking
-- [ ] Decide whether to implement Naive Bayes or another lightweight probabilistic classifier as the main concrete anchor
-- [ ] Implement one lightweight probabilistic model if worthwhile
-- [ ] Add small experiments showing how probabilistic assumptions affect behavior
+- [x] Write theory for maximum likelihood and MAP intuition
+- [x] Write theory for probabilistic outputs and uncertainty concepts
+- [x] Write theory for Naive Bayes and simple Gaussian-model thinking
+- [x] Decide whether to implement Naive Bayes or another lightweight probabilistic classifier as the main concrete anchor
+  - Decision: implement `GaussianNaiveBayes` as the main concrete probabilistic model for Phase 9
+- [x] Implement `GaussianNaiveBayes`
+- [x] Add `fit`, `predict`, `predict_proba`, and `predict_log_proba`
+- [x] Add variance smoothing for numerical stability
+- [x] Add tests for:
+  - option validation
+  - binary/multiclass target validation
+  - class prior estimation
+  - per-class feature mean estimation
+  - per-class feature variance estimation
+  - probability rows summing to one
+  - predict before fit rejection
+  - invalid input rejection
+- [x] Add small experiments showing how probabilistic assumptions affect behavior:
+  - simple Gaussian clusters
+  - class prior effects
+  - variance smoothing effects
+  - probability output tables
 
 ### Expected files / deliverables
 - theory doc:
   - `docs/theory/probabilistic-ml.md`
-- optional lightweight probabilistic model files:
+- Gaussian Naive Bayes model files:
   - `include/ml/probabilistic/naive_bayes.hpp`
   - `src/probabilistic/naive_bayes.cpp`
 - experiment folders:
   - `experiments/phase-9-probabilistic-ml/`
   - `outputs/phase-9-probabilistic-ml/`
+- expected outputs:
+  - `outputs/phase-9-probabilistic-ml/gaussian_naive_bayes_probability_table.csv`
+  - `outputs/phase-9-probabilistic-ml/gaussian_naive_bayes_prior_comparison.txt`
+  - `outputs/phase-9-probabilistic-ml/probabilistic_model_summary.txt`
 
 ### Concrete outputs
 - probabilistic ML theory docs
-- one lightweight probabilistic implementation or small demo anchor
+- reusable `GaussianNaiveBayes` implementation
+- class prior, likelihood, posterior-probability workflow
 - probability-centered experiment notes
+- probability output tables
 
 ### Exit criteria
-- [ ] Likelihood-based thinking is clearly understood and documented
-- [ ] At least one concrete probabilistic model or demo exists
-- [ ] The project now has a probability-centered interpretation layer, not only deterministic prediction thinking
+- [x] Likelihood-based thinking is clearly understood and documented
+- [x] `GaussianNaiveBayes` is implemented as a reusable probabilistic classifier
+- [x] `GaussianNaiveBayes` exposes both hard predictions and probability/log-probability outputs
+- [x] Class priors, Gaussian likelihoods, variance smoothing, and posterior normalization are tested
+- [x] Small experiments show how probabilistic assumptions affect model behavior
+- [x] The project now has a probability-centered interpretation layer, not only deterministic prediction thinking
 
 ### Optimization note
 Prioritize conceptual power over breadth of implementations.
