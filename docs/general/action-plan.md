@@ -1333,14 +1333,14 @@ These support the workflows, but they should not become the central deliverables
 
 #### Practical experiment runners
 
-- [ ] Create reusable practical workflow folders:
+- [x] Create reusable practical workflow folders:
   - `experiments/phase-11-practical-workflows/`
   - `outputs/phase-11-practical-workflows/`
-- [ ] Add a regression workflow runner
-- [ ] Add a binary classification workflow runner
-- [ ] Add a multiclass classification workflow runner
-- [ ] Add an unsupervised workflow runner
-- [ ] Define common output schemas for:
+- [x] Add a regression workflow runner
+- [x] Add a binary classification workflow runner
+- [x] Add a multiclass classification workflow runner
+- [x] Add an unsupervised workflow runner
+- [x] Define common output schemas for:
   - metrics
   - predictions
   - probabilities

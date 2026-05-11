@@ -42,11 +42,14 @@ Testing/
 # ------------------------------------------------------------
 # Generated experiment outputs
 # ------------------------------------------------------------
-outputs/
+outputs/*
 *.log
 
-# Keep folder structure if needed
+# Keep selected output folder structure
 !outputs/.gitkeep
+!outputs/practical-exercises/
+!outputs/practical-exercises/*/
+!outputs/practical-exercises/*/.gitkeep
 
 
 # ------------------------------------------------------------
@@ -71,6 +74,16 @@ experiments/cache/
 experiments/runs/
 
 !experiments/.gitkeep
+
+
+# ------------------------------------------------------------
+# Output workspace
+# ------------------------------------------------------------
+# Generated practical exercise CSV outputs
+outputs/practical-exercises/regression/*.csv
+outputs/practical-exercises/binary-classification/*.csv
+outputs/practical-exercises/multiclass-classification/*.csv
+outputs/practical-exercises/unsupervised/*.csv
 
 
 # ------------------------------------------------------------

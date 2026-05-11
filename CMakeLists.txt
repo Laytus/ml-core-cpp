@@ -56,6 +56,7 @@ add_library(ml_core
     src/dl_bridge/activation.cpp
     src/dl_bridge/mlp.cpp
     src/common/csv_dataset_loader.cpp
+    src/workflows/output_writer.cpp
 )
 
 target_include_directories(ml_core
@@ -92,7 +93,7 @@ add_executable(ml_core_tests
     experiments/phase-8-unsupervised/phase8_unsupervised_sanity.cpp
     experiments/phase-9-probabilistic-ml/phase9_probabilistic_ml_sanity.cpp
     experiments/phase-10-dl-bridge/phase10_dl_bridge_sanity.cpp
-    experiments/phase-11-csv-dataset-loader/phase11_csv_dataset_loader_sanity.cpp
+    experiments/phase-11-practical-workflows/phase11_practical_workflows_sanity.cpp
 )
 
 target_include_directories(ml_core_tests
@@ -108,7 +109,7 @@ target_include_directories(ml_core_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-8-unsupervised
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-9-probabilistic-ml
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-10-dl-bridge
-        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-11-csv-dataset-loader
+        ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-11-practical-workflows
 )
 
 target_link_libraries(ml_core_tests
