@@ -1,0 +1,54 @@
+{
+    "dataset_name": "nasa_kc1_software_defects",
+    "description": "NASA KC1 software defect prediction dataset converted from ARFF to numeric CSV.",
+    "input": {
+        "format": "arff",
+        "path": "data/raw/nasa_kc1_software_defects/kc1.arff"
+    },
+    "output": {
+        "path": "data/processed/nasa_kc1_software_defects.csv"
+    },
+    "column_renames": {
+        "v(g)": "v_g",
+        "ev(g)": "ev_g",
+        "iv(g)": "iv_g"
+    },
+    "features": [
+        "loc",
+        "v_g",
+        "ev_g",
+        "iv_g",
+        "n",
+        "v",
+        "l",
+        "d",
+        "i",
+        "e",
+        "b",
+        "t",
+        "lOCode",
+        "lOComment",
+        "lOBlank",
+        "locCodeAndComment",
+        "uniq_Op",
+        "uniq_Opnd",
+        "total_Op",
+        "total_Opnd",
+        "branchCount"
+    ],
+    "target": {
+        "column": "defects",
+        "type": "binary",
+        "encoding": {
+        "false": 0,
+        "true": 1
+        }
+    },
+    "validation": {
+        "missing_values": ["", "?", "NA", "NaN", "nan", "null"],
+        "reject_missing": true,
+        "require_numeric_features": true,
+        "require_numeric_target": true,
+        "reject_infinite": true
+    }
+}

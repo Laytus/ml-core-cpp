@@ -1,0 +1,56 @@
+{
+    "dataset_name": "stock_ohlcv_engineered",
+    "description": "Engineered OHLCV stock dataset for regression and optional PCA/KMeans workflows.",
+    "input": {
+        "format": "csv_collection",
+        "paths": [
+            "data/raw/stock_ohlcv/aapl_us_d.csv",
+            "data/raw/stock_ohlcv/amzn_us_d.csv",
+            "data/raw/stock_ohlcv/googl_us_d.csv",
+            "data/raw/stock_ohlcv/jpm_us_d.csv",
+            "data/raw/stock_ohlcv/meta_us_d.csv",
+            "data/raw/stock_ohlcv/msft_us_d.csv",
+            "data/raw/stock_ohlcv/nvda_us_d.csv",
+            "data/raw/stock_ohlcv/xom_us_d.csv"
+        ],
+        "has_header": true,
+        "delimiter": ","
+    },
+    "processor": {
+        "type": "ohlcv_feature_engineering",
+        "ticker_from_filename": true,
+        "date_column": "Date",
+        "open_column": "Open",
+        "high_column": "High",
+        "low_column": "Low",
+        "close_column": "Close",
+        "volume_column": "Volume",
+        "lookback_return": 5,
+        "lookback_volatility": 5,
+        "target_horizon": 1
+    },
+    "output": {
+        "path": "data/processed/stock_ohlcv_engineered.csv",
+        "reference_path": "data/processed/stock_ohlcv_engineered_reference.csv"
+    },
+    "features": [
+        "return_1d",
+        "return_5d",
+        "volatility_5d",
+        "range_pct",
+        "volume_change_1d"
+    ],
+    "target": {
+        "column": "target_next_return",
+        "type": "regression"
+    },
+    "validation": {
+        "missing_values": ["", "?", "NA", "NaN", "nan", "null"],
+        "reject_missing": true,
+        "require_numeric_features": true,
+        "require_numeric_target": true,
+        "reject_infinite": true,
+        "reject_non_positive_close": true,
+        "reject_non_positive_previous_volume": true
+    }
+}

@@ -1,0 +1,60 @@
+{
+    "dataset_name": "wine",
+    "description": "UCI Wine dataset converted from headerless delimited text to numeric CSV.",
+    "input": {
+        "format": "delimited",
+        "path": "data/raw/wine/wine.data",
+        "delimiter": ",",
+        "has_header": false,
+        "columns": [
+            "class",
+            "alcohol",
+            "malic_acid",
+            "ash",
+            "alcalinity_of_ash",
+            "magnesium",
+            "total_phenols",
+            "flavanoids",
+            "nonflavanoid_phenols",
+            "proanthocyanins",
+            "color_intensity",
+            "hue",
+            "od280_od315_of_diluted_wines",
+            "proline"
+        ]
+    },
+    "output": {
+        "path": "data/processed/wine.csv"
+    },
+    "features": [
+        "alcohol",
+        "malic_acid",
+        "ash",
+        "alcalinity_of_ash",
+        "magnesium",
+        "total_phenols",
+        "flavanoids",
+        "nonflavanoid_phenols",
+        "proanthocyanins",
+        "color_intensity",
+        "hue",
+        "od280_od315_of_diluted_wines",
+        "proline"
+    ],
+    "target": {
+        "column": "class",
+        "type": "multiclass",
+        "encoding": {
+        "1": 0,
+        "2": 1,
+        "3": 2
+        }
+    },
+    "validation": {
+        "missing_values": ["", "?", "NA", "NaN", "nan", "null"],
+        "reject_missing": true,
+        "require_numeric_features": true,
+        "require_numeric_target": true,
+        "reject_infinite": true
+    }
+}

@@ -1172,7 +1172,394 @@ This phase should stop exactly at the point where the DL project can begin clean
 
 ---
 
-## Phase 11 – Wrap-Up and Transition
+## Phase 11 – Practical ML Workflows with Real Datasets
+
+**Goal:** Use the implemented ML Core models on real datasets, create reusable dataset import and experiment workflows, export structured results, visualize model behavior in Python/Jupyter, and write practical usage/math-mapping docs for the main models.
+
+**Level:** A
+
+**Estimated effort:** 25–45 hours
+
+### Why this phase exists
+
+This phase turns ML Core from a collection of implemented algorithms into a practical learning and experimentation system.
+
+Up to Phase 10, the project has implemented and tested many models in controlled sanity scenarios. That was necessary to build correctness and conceptual clarity.
+
+However, before freezing the project, the models should be used on real datasets to answer practical questions:
+
+- How do we load real data into the project’s `Matrix` / `Vector` format?
+- How do different models compare on the same dataset?
+- How do hyperparameters change model behavior?
+- How do we export predictions, probabilities, metrics, losses, and parameter sweeps?
+- How do we visualize those outputs in Python/Jupyter?
+- How does each public model method connect to the math documented in the theory notes?
+- Which implemented models are practical baselines, and which are mainly educational?
+
+This phase is the final practical validation layer before the wrap-up.
+
+It should not add many new ML algorithms. Its purpose is to use, compare, document, and visualize what already exists.
+
+### Prerequisites
+
+- Phases 0–10 complete
+- Implemented models are already tested in sanity workflows
+- Existing output folder conventions are stable
+- Python/Jupyter environment available for visualization
+- At least a few real datasets selected or downloaded
+
+### Scope decision
+
+Phase 11 focuses on **practical workflows**, not new algorithm research.
+
+This phase should implement:
+
+- real dataset import utilities
+- dataset format conventions
+- reusable experiment runners
+- structured output schemas
+- Jupyter visualization notebooks
+- practical model usage docs
+- model math-mapping docs
+- real-dataset comparisons across selected models
+
+This phase should avoid:
+
+- implementing new model families
+- expanding into full production data engineering
+- building a full plotting library in C++
+- turning the repo into a general AutoML tool
+- spending too much time on large or messy datasets before the workflow is stable
+
+### Primary model families to focus on
+
+#### Regression models
+
+Focus on:
+
+- `LinearRegression`
+- Ridge / regularized linear regression behavior, if exposed cleanly
+- `DecisionTreeRegressor`
+- `GradientBoostingRegressor`
+
+Use these for real regression datasets such as housing, energy efficiency, medical numerical prediction, or other tabular datasets with a continuous target.
+
+#### Binary classification models
+
+Focus on:
+
+- `LogisticRegression`
+- `LinearSVM`
+- `GaussianNaiveBayes`
+- `DecisionTreeClassifier`
+- `RandomForestClassifier`
+- `TinyMLPBinaryClassifier`
+
+Use these for real binary classification datasets such as breast cancer classification, credit/default-style datasets, spam-like datasets, or simplified binary tabular tasks.
+
+`Perceptron` can be included as an educational baseline, but it should not be treated as a main practical model.
+
+#### Multiclass classification models
+
+Focus on:
+
+- `SoftmaxRegression`
+- `KNNClassifier`
+- `DecisionTreeClassifier`
+- `RandomForestClassifier`
+- `GaussianNaiveBayes`
+
+Use these for real multiclass datasets such as Iris, Wine, Digits-style tabular data, or other clean multiclass datasets.
+
+#### Unsupervised models
+
+Focus on:
+
+- `PCA`
+- `KMeans`
+- PCA + KMeans combined workflow
+
+Use these for dimensionality reduction, clustering, and qualitative visualization.
+
+#### Supporting utilities
+
+Use, but do not over-focus on:
+
+- distance metrics
+- kernel functions
+- classification metrics
+- regression metrics
+- evaluation harness utilities
+- train/test split utilities
+- preprocessing utilities
+
+These support the workflows, but they should not become the central deliverables.
+
+---
+
+### Detailed tasks
+
+#### Dataset import and dataset conventions
+
+- [x] Define real-dataset folder conventions:
+  - `data/raw/`
+  - `data/processed/`
+  - `data/metadata/`
+- [x] Define dataset metadata convention:
+  - dataset name
+  - source URL
+  - license / usage note if known
+  - target column
+  - feature columns
+  - task type:
+    - regression
+    - binary classification
+    - multiclass classification
+    - unsupervised
+  - preprocessing notes
+- [x] Implement or standardize CSV dataset loading for real workflows
+- [x] Implement dataset-to-`Matrix` / `Vector` conversion utilities where needed
+- [x] Define handling for:
+  - headers
+  - selected feature columns
+  - target column
+  - numeric-only datasets
+  - missing-value rejection or simple preprocessing
+- [x] Add at least one clean real dataset for each workflow type:
+  - regression
+  - binary classification
+  - multiclass classification
+  - unsupervised / visualization
+
+#### Practical experiment runners
+
+- [ ] Create reusable practical workflow folders:
+  - `experiments/phase-11-practical-workflows/`
+  - `outputs/phase-11-practical-workflows/`
+- [ ] Add a regression workflow runner
+- [ ] Add a binary classification workflow runner
+- [ ] Add a multiclass classification workflow runner
+- [ ] Add an unsupervised workflow runner
+- [ ] Define common output schemas for:
+  - metrics
+  - predictions
+  - probabilities
+  - decision scores
+  - loss histories
+  - hyperparameter sweeps
+  - dimensionality-reduction projections
+  - clustering assignments
+- [ ] Ensure experiment outputs are easy to read from Python notebooks
+
+#### Model comparison workflows
+
+- [ ] Compare regression models on at least one real regression dataset:
+  - `LinearRegression`
+  - regularized linear regression / Ridge behavior if available
+  - `DecisionTreeRegressor`
+  - `GradientBoostingRegressor`
+- [ ] Compare binary classifiers on at least one real binary dataset:
+  - `LogisticRegression`
+  - `LinearSVM`
+  - `GaussianNaiveBayes`
+  - `DecisionTreeClassifier`
+  - `RandomForestClassifier`
+  - optionally `TinyMLPBinaryClassifier`
+- [ ] Compare multiclass classifiers on at least one real multiclass dataset:
+  - `SoftmaxRegression`
+  - `KNNClassifier`
+  - `DecisionTreeClassifier`
+  - `RandomForestClassifier`
+  - `GaussianNaiveBayes`
+- [ ] Compare unsupervised representations:
+  - PCA projection
+  - KMeans clustering
+  - PCA + KMeans visualization-ready output
+- [ ] Export all comparison results as CSV/TXT summaries
+
+#### Hyperparameter and behavior studies
+
+- [ ] Add parameter sweeps for selected models:
+  - `k` in `KNNClassifier`
+  - `max_depth` / stopping controls in `DecisionTreeClassifier`
+  - number of trees / `max_features` in `RandomForestClassifier`
+  - number of estimators / learning rate in `GradientBoostingRegressor`
+  - learning rate / regularization in `LogisticRegression` or `LinearSVM`
+  - hidden units / learning rate / epochs in `TinyMLPBinaryClassifier`
+  - number of components in `PCA`
+  - number of clusters in `KMeans`
+- [ ] Export sweep results in a consistent schema
+- [ ] Add short interpretation summaries for each sweep:
+  - what changed
+  - what improved
+  - what worsened
+  - what the result illustrates conceptually
+
+#### Python/Jupyter visualization system
+
+- [ ] Create notebook folder:
+  - `notebooks/phase-11-practical-workflows/`
+- [ ] Add a notebook for regression outputs:
+  - metrics comparison
+  - predicted vs true values
+  - residual plots if useful
+- [ ] Add a notebook for binary classification outputs:
+  - metric comparison
+  - probability distribution
+  - decision-score comparison where available
+- [ ] Add a notebook for multiclass classification outputs:
+  - metric comparison
+  - confusion-matrix-style visualization if exported
+- [ ] Add a notebook for unsupervised outputs:
+  - PCA 2D projection
+  - KMeans cluster visualization
+  - PCA + KMeans combined plot
+- [ ] Add a notebook for hyperparameter sweeps:
+  - parameter vs metric
+  - parameter vs loss
+  - parameter vs inertia / explained variance where applicable
+- [ ] Keep notebooks as visualization/analysis tools only; core model logic remains in C++
+
+#### Practical usage docs per model
+
+For each focused model, create a usage doc explaining:
+
+- what the model does
+- what task type it supports
+- what input format it expects
+- what preprocessing is usually needed
+- how to instantiate the model
+- how to call `fit`
+- how to call `predict`
+- how to call `predict_proba`, `decision_function`, `transform`, or equivalent methods when applicable
+- how to read the outputs
+- what common mistakes to avoid
+- what experiment output files demonstrate the model
+
+Suggested path pattern:
+
+```txt
+docs/practical/models/<model-name>-usage.md
+```
+
+Suggested initial usage docs:
+
+- [ ] `docs/practical/models/linear-regression-usage.md`
+- [ ] `docs/practical/models/logistic-regression-usage.md`
+- [ ] `docs/practical/models/softmax-regression-usage.md`
+- [ ] `docs/practical/models/knn-classifier-usage.md`
+- [ ] `docs/practical/models/linear-svm-usage.md`
+- [ ] `docs/practical/models/decision-tree-usage.md`
+- [ ] `docs/practical/models/random-forest-usage.md`
+- [ ] `docs/practical/models/gradient-boosting-regressor-usage.md`
+- [ ] `docs/practical/models/gaussian-naive-bayes-usage.md`
+- [ ] `docs/practical/models/kmeans-usage.md`
+- [ ] `docs/practical/models/pca-usage.md`
+- [ ] `docs/practical/models/tiny-mlp-binary-classifier-usage.md`
+
+#### Math-mapping docs per model
+
+For each focused model, create a math-mapping doc that links public methods and important internal methods to the mathematical process they implement.
+
+These docs should answer:
+
+- What math is implemented by `fit`?
+- What math is implemented by `predict`?
+- What math is implemented by `predict_proba`?
+- What math is implemented by `decision_function`?
+- What math is implemented by `transform`?
+- What math is implemented by loss/history methods?
+- Which methods are mostly infrastructure rather than model math?
+
+Suggested path pattern:
+
+```txt
+docs/practical/math-maps/<model-name>-math-map.md
+```
+
+Suggested initial math-map docs:
+
+- [ ] `docs/practical/math-maps/linear-regression-math-map.md`
+- [ ] `docs/practical/math-maps/logistic-regression-math-map.md`
+- [ ] `docs/practical/math-maps/softmax-regression-math-map.md`
+- [ ] `docs/practical/math-maps/knn-classifier-math-map.md`
+- [ ] `docs/practical/math-maps/linear-svm-math-map.md`
+- [ ] `docs/practical/math-maps/decision-tree-math-map.md`
+- [ ] `docs/practical/math-maps/random-forest-math-map.md`
+- [ ] `docs/practical/math-maps/gradient-boosting-regressor-math-map.md`
+- [ ] `docs/practical/math-maps/gaussian-naive-bayes-math-map.md`
+- [ ] `docs/practical/math-maps/kmeans-math-map.md`
+- [ ] `docs/practical/math-maps/pca-math-map.md`
+- [ ] `docs/practical/math-maps/tiny-mlp-binary-classifier-math-map.md`
+
+#### Final practical summary
+
+- [ ] Write a practical workflow summary:
+  - `docs/practical/practical-workflows-summary.md`
+- [ ] Summarize which models worked best on which dataset types
+- [ ] Summarize which hyperparameters had the clearest effects
+- [ ] Summarize what was easy or hard when using the C++ ML Core on real data
+- [ ] Summarize what should be improved later, without expanding the current project scope indefinitely
+
+### Expected files / deliverables
+
+- dataset folders:
+  - `data/raw/`
+  - `data/processed/`
+  - `data/metadata/`
+- practical workflow experiments:
+  - `experiments/phase-11-practical-workflows/`
+- practical workflow outputs:
+  - `outputs/phase-11-practical-workflows/`
+- notebook folder:
+  - `notebooks/phase-11-practical-workflows/`
+- practical docs:
+  - `docs/practical/models/`
+  - `docs/practical/math-maps/`
+  - `docs/practical/practical-workflows-summary.md`
+- optional practical workflow helpers:
+  - `include/ml/common/csv_dataset_loader.hpp`
+  - `src/common/csv_dataset_loader.cpp`
+  - `include/ml/common/experiment_export.hpp`
+  - `src/common/experiment_export.cpp`
+
+### Concrete outputs
+
+- real-dataset import conventions
+- real-dataset loading and conversion workflow
+- regression comparison outputs
+- binary classification comparison outputs
+- multiclass classification comparison outputs
+- unsupervised projection/clustering outputs
+- hyperparameter sweep outputs
+- Jupyter notebooks reading and visualizing exported results
+- practical usage docs for selected models
+- math-mapping docs for selected models
+- final practical workflow summary
+
+### Exit criteria
+
+- [ ] At least one real regression dataset is used end-to-end
+- [ ] At least one real binary classification dataset is used end-to-end
+- [ ] At least one real multiclass classification dataset is used end-to-end
+- [ ] At least one unsupervised PCA/KMeans workflow is exported and visualized
+- [ ] The project has a reusable way to load numeric CSV datasets into `Matrix` / `Vector`
+- [ ] Experiment outputs can be consumed from Python/Jupyter without manual cleanup
+- [ ] Main model families have practical usage docs
+- [ ] Main model families have math-mapping docs
+- [ ] The practical phase demonstrates that ML Core can be used as a small real experimentation framework
+
+### Optimization note
+
+This phase should be practical and selective.
+
+Do not try to turn ML Core into scikit-learn.
+
+The point is to prove that the implemented models can be used on real datasets, compared consistently, visualized clearly, and explained mathematically.
+
+---
+
+## Phase 12 – Wrap-Up and Transition
 
 **Goal:** Freeze ML Core cleanly and prepare the DL roadmap.
 
@@ -1181,20 +1568,53 @@ This phase should stop exactly at the point where the DL project can begin clean
 **Estimated effort:** 5–8 hours
 
 ### Why this phase exists
+
 Without a wrap-up, hard-earned structure gets lost and the DL phase starts without a stable handoff.
 
+After Phase 11, the project will contain:
+
+- mathematical theory
+- implemented classical ML models
+- experiments and sanity tests
+- practical real-dataset workflows
+- visualization notebooks
+- usage documentation
+- method-to-math mapping docs
+- a DL bridge through perceptron and tiny MLP
+
+Phase 12 exists to freeze that scope, summarize what was achieved, and define the clean entry point into the next Deep Learning project.
+
 ### Prerequisites
-- Phases 0–10 complete
+
+- Phases 0–11 complete
+- Practical workflows and docs from Phase 11 complete
+- The project scope is ready to freeze
 
 ### Detailed tasks
-- [ ] Update README and general positioning docs
+
 - [ ] Summarize what was fully implemented vs partially implemented vs theory-only
 - [ ] Summarize the strongest concepts gained from the project
 - [ ] Identify the remaining weak points before DL
 - [ ] Define the entry plan for the DL project
 - [ ] Freeze the repo scope clearly so ML Core does not keep expanding indefinitely
+- [ ] Update README and general positioning docs
+- [ ] Add a final model inventory:
+  - model name
+  - task type
+  - implementation depth
+  - practical workflow coverage
+  - related theory doc
+  - related usage doc
+  - related math-map doc
+- [ ] Add a final experiment inventory:
+  - phase
+  - experiment name
+  - output files
+  - what concept it demonstrates
+- [ ] Add a final transition checklist for the DL project
 
 ### Expected files / deliverables
+
 - updated general docs:
   - `README.md`
   - `docs/general/ml-core.md`
@@ -1202,20 +1622,39 @@ Without a wrap-up, hard-earned structure gets lost and the DL phase starts witho
 - wrap-up/transition docs:
   - `docs/general/ml-core-wrap-up.md`
   - `docs/general/dl-roadmap-entry.md`
+- optional inventory docs:
+  - `docs/general/model-inventory.md`
+  - `docs/general/experiment-inventory.md`
 
 ### Concrete outputs
+
 - final repo positioning
 - implementation-depth summary
+- real-dataset workflow summary
+- model inventory
+- experiment inventory
 - remaining-gap summary
 - DL roadmap entry document
 
 ### Exit criteria
+
 - [ ] The project has a clear final identity
-- [ ] The implemented/theory-only boundary is documented honestly
+- [ ] The implemented / partial / theory-only boundary is documented honestly
+- [ ] The practical workflow layer is summarized and not left as scattered outputs
+- [ ] The model inventory makes it clear what ML Core contains
+- [ ] The experiment inventory makes it clear what each output demonstrates
 - [ ] The next DL project can begin with no ambiguity about what ML Core already covered
+- [ ] The repo scope is frozen so ML Core does not keep expanding indefinitely
 
 ### Optimization note
-This is not cosmetic. It is the handoff layer to the next major project.
+
+This is not cosmetic.
+
+It is the handoff layer to the next major project.
+
+The goal is not to keep improving ML Core forever.
+
+The goal is to close it cleanly, preserve the learning value, and start the Deep Learning project with a strong foundation.
 
 ---
 
