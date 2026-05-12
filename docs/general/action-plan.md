@@ -104,7 +104,7 @@ When a model or method is implemented seriously, it must be tested in a real min
 
 ## Phase Overview
 
-The project will cover all phases from 0 to 11, with an added Phase 6B dedicated to tree ensembles and advanced tree features.
+The project covers all phases from 0 to 12, with an added Phase 6B dedicated to tree ensembles and advanced tree features.
 
 Each phase below includes:
 - purpose
@@ -1592,13 +1592,13 @@ Phase 12 exists to freeze that scope, summarize what was achieved, and define th
 
 ### Detailed tasks
 
-- [ ] Summarize what was fully implemented vs partially implemented vs theory-only
-- [ ] Summarize the strongest concepts gained from the project
-- [ ] Identify the remaining weak points before DL
-- [ ] Define the entry plan for the DL project
-- [ ] Freeze the repo scope clearly so ML Core does not keep expanding indefinitely
-- [ ] Update README and general positioning docs
-- [ ] Add a final model inventory:
+- [x] Summarize what was fully implemented vs partially implemented vs theory-only
+- [x] Summarize the strongest concepts gained from the project
+- [x] Identify the remaining weak points before DL
+- [x] Define the entry plan for the DL project
+- [x] Freeze the repo scope clearly so ML Core does not keep expanding indefinitely
+- [x] Update README and general positioning docs
+- [x] Add a final model inventory:
   - model name
   - task type
   - implementation depth
@@ -1606,12 +1606,12 @@ Phase 12 exists to freeze that scope, summarize what was achieved, and define th
   - related theory doc
   - related usage doc
   - related math-map doc
-- [ ] Add a final experiment inventory:
+- [x] Add a final experiment inventory:
   - phase
   - experiment name
   - output files
   - what concept it demonstrates
-- [ ] Add a final transition checklist for the DL project
+- [x] Add a final transition checklist for the DL project
 
 ### Expected files / deliverables
 
@@ -1638,13 +1638,13 @@ Phase 12 exists to freeze that scope, summarize what was achieved, and define th
 
 ### Exit criteria
 
-- [ ] The project has a clear final identity
-- [ ] The implemented / partial / theory-only boundary is documented honestly
-- [ ] The practical workflow layer is summarized and not left as scattered outputs
-- [ ] The model inventory makes it clear what ML Core contains
-- [ ] The experiment inventory makes it clear what each output demonstrates
-- [ ] The next DL project can begin with no ambiguity about what ML Core already covered
-- [ ] The repo scope is frozen so ML Core does not keep expanding indefinitely
+- [x] The project has a clear final identity
+- [x] The implemented / partial / theory-only boundary is documented honestly
+- [x] The practical workflow layer is summarized and not left as scattered outputs
+- [x] The model inventory makes it clear what ML Core contains
+- [x] The experiment inventory makes it clear what each output demonstrates
+- [x] The next DL project can begin with no ambiguity about what ML Core already covered
+- [x] The repo scope is frozen so ML Core does not keep expanding indefinitely
 
 ### Optimization note
 
@@ -1674,14 +1674,10 @@ Follow the phases in this order:
 10. Phase 8 – Unsupervised Learning
 11. Phase 9 – Probabilistic ML Essentials
 12. Phase 10 – Bridge to Deep Learning
-13. Phase 11 – Wrap-Up and Transition
+13. Phase 11 – Practical ML Workflows with Real Datasets
+14. Phase 12 – Wrap-Up and Transition
 
 This order is chosen to avoid useless implementation and dependency problems.
-<!-- 
-| Phase | Description | Time | Status |
-|-------|-------------|------|--------|
-| 0 | Reset and Infrastructure | 6–10 h | ☐ | 
-| 0 | Reset and Infrastructure | 6–10 h | ☑ |  -->
 
 ---
 
@@ -1701,7 +1697,8 @@ Approximate hours per phase:
 - Phase 8: 14–22 h
 - Phase 9: 10–16 h
 - Phase 10: 14–22 h
-- Phase 11: 5–8 h
+- Phase 11: 25–45 h
+- Phase 12: 5–8 h
 
 ### Approximate total
 
@@ -1718,18 +1715,18 @@ The objective is to make it as efficient as possible **without losing the depth 
 
 ## Final Positioning of This Action Plan
 
-This action plan should be treated as:
-- the real ML foundation project before Deep Learning
-- a serious and optimized ML roadmap
-- a dependency-aware implementation plan that avoids throwaway work
-- the execution reference for the whole project
+This action plan should now be treated as:
+- the completed execution record for the ML foundation project before Deep Learning
+- a serious and optimized ML roadmap that was followed to completion
+- a dependency-aware implementation plan that avoided throwaway work
+- the final reference for what ML Core contains and why it is now closed
 
 It should not be treated as:
 - a toy ML repo
 - a purely theoretical reading list
 - a rushed overview of random ML topics
 
-This is the project meant to build the actual base layer that was still missing.
+This is the project that built the actual base layer that was missing before Deep Learning.
 
 ---
 
@@ -1749,4 +1746,5 @@ This is the project meant to build the actual base layer that was still missing.
 | 8. Unsupervised Learning | A | 14–22 | k-means, PCA | Unsupervised-learning theory doc | Real unsupervised implementations and experiments exist |
 | 9. Probabilistic ML Essentials | B | 10–16 | One lightweight probabilistic model or demo | Probabilistic-ML theory doc | Likelihood-based thinking is clearly integrated |
 | 10. Bridge to Deep Learning | A | 14–22 | Tiny perceptron/MLP bridge | DL-bridge theory doc | Backprop and DL transition are conceptually natural |
-| 11. Wrap-Up and Transition | A | 5–8 | Final summaries and DL roadmap entry | Positioning/wrap-up docs | ML Core closes cleanly and DL can start |
+| 11. Practical ML Workflows with Real Datasets | A | 25–45 | Practical workflow runners, model comparisons, hyperparameter sweeps, output writers, notebooks, verification scripts | Practical usage docs, math-map docs, sweep summaries, practical workflow summary | Real datasets run end-to-end and ML Core works as a small experimentation framework |
+| 12. Wrap-Up and Transition | A | 5–8 | Final inventories, README alignment, final positioning docs | Model inventory, experiment inventory, ML Core wrap-up, DL roadmap entry | ML Core closes cleanly and DL can start |
