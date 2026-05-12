@@ -57,6 +57,11 @@ add_library(ml_core
     src/dl_bridge/mlp.cpp
     src/common/csv_dataset_loader.cpp
     src/workflows/output_writer.cpp
+    src/workflows/regression_comparison.cpp
+    src/workflows/binary_classification_comparison.cpp
+    src/workflows/multiclass_classification_comparison.cpp
+    src/workflows/unsupervised_comparison.cpp
+    src/workflows/hyperparameter_sweeps.cpp
 )
 
 target_include_directories(ml_core

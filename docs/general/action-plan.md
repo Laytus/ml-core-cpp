@@ -1349,37 +1349,37 @@ These support the workflows, but they should not become the central deliverables
   - hyperparameter sweeps
   - dimensionality-reduction projections
   - clustering assignments
-- [ ] Ensure experiment outputs are easy to read from Python notebooks
+- [x] Ensure experiment outputs are easy to read from Python notebooks
 
 #### Model comparison workflows
 
-- [ ] Compare regression models on at least one real regression dataset:
+- [x] Compare regression models on at least one real regression dataset:
   - `LinearRegression`
   - regularized linear regression / Ridge behavior if available
   - `DecisionTreeRegressor`
   - `GradientBoostingRegressor`
-- [ ] Compare binary classifiers on at least one real binary dataset:
+- [x] Compare binary classifiers on at least one real binary dataset:
   - `LogisticRegression`
   - `LinearSVM`
   - `GaussianNaiveBayes`
   - `DecisionTreeClassifier`
   - `RandomForestClassifier`
-  - optionally `TinyMLPBinaryClassifier`
-- [ ] Compare multiclass classifiers on at least one real multiclass dataset:
+  - `TinyMLPBinaryClassifier`
+- [x] Compare multiclass classifiers on at least one real multiclass dataset:
   - `SoftmaxRegression`
   - `KNNClassifier`
   - `DecisionTreeClassifier`
   - `RandomForestClassifier`
   - `GaussianNaiveBayes`
-- [ ] Compare unsupervised representations:
+- [x] Compare unsupervised representations:
   - PCA projection
   - KMeans clustering
   - PCA + KMeans visualization-ready output
-- [ ] Export all comparison results as CSV/TXT summaries
+- [x] Export all comparison results as CSV/TXT summaries
 
 #### Hyperparameter and behavior studies
 
-- [ ] Add parameter sweeps for selected models:
+- [x] Add parameter sweeps for selected models:
   - `k` in `KNNClassifier`
   - `max_depth` / stopping controls in `DecisionTreeClassifier`
   - number of trees / `max_features` in `RandomForestClassifier`
@@ -1388,8 +1388,8 @@ These support the workflows, but they should not become the central deliverables
   - hidden units / learning rate / epochs in `TinyMLPBinaryClassifier`
   - number of components in `PCA`
   - number of clusters in `KMeans`
-- [ ] Export sweep results in a consistent schema
-- [ ] Add short interpretation summaries for each sweep:
+- [x] Export sweep results in a consistent schema
+- [x] Add short interpretation summaries for each sweep:
   - what changed
   - what improved
   - what worsened
@@ -1397,28 +1397,28 @@ These support the workflows, but they should not become the central deliverables
 
 #### Python/Jupyter visualization system
 
-- [ ] Create notebook folder:
-  - `notebooks/phase-11-practical-workflows/`
-- [ ] Add a notebook for regression outputs:
+- [x] Create notebook folder:
+  - `notebooks/practical-workflows/`
+- [x] Add a notebook for regression outputs:
   - metrics comparison
   - predicted vs true values
   - residual plots if useful
-- [ ] Add a notebook for binary classification outputs:
+- [x] Add a notebook for binary classification outputs:
   - metric comparison
   - probability distribution
   - decision-score comparison where available
-- [ ] Add a notebook for multiclass classification outputs:
+- [x] Add a notebook for multiclass classification outputs:
   - metric comparison
   - confusion-matrix-style visualization if exported
-- [ ] Add a notebook for unsupervised outputs:
+- [x] Add a notebook for unsupervised outputs:
   - PCA 2D projection
   - KMeans cluster visualization
   - PCA + KMeans combined plot
-- [ ] Add a notebook for hyperparameter sweeps:
+- [x] Add a notebook for hyperparameter sweeps:
   - parameter vs metric
   - parameter vs loss
   - parameter vs inertia / explained variance where applicable
-- [ ] Keep notebooks as visualization/analysis tools only; core model logic remains in C++
+- [x] Keep notebooks as visualization/analysis tools only; core model logic remains in C++
 
 #### Practical usage docs per model
 
@@ -1444,18 +1444,18 @@ docs/practical/models/<model-name>-usage.md
 
 Suggested initial usage docs:
 
-- [ ] `docs/practical/models/linear-regression-usage.md`
-- [ ] `docs/practical/models/logistic-regression-usage.md`
-- [ ] `docs/practical/models/softmax-regression-usage.md`
-- [ ] `docs/practical/models/knn-classifier-usage.md`
-- [ ] `docs/practical/models/linear-svm-usage.md`
-- [ ] `docs/practical/models/decision-tree-usage.md`
-- [ ] `docs/practical/models/random-forest-usage.md`
-- [ ] `docs/practical/models/gradient-boosting-regressor-usage.md`
-- [ ] `docs/practical/models/gaussian-naive-bayes-usage.md`
-- [ ] `docs/practical/models/kmeans-usage.md`
-- [ ] `docs/practical/models/pca-usage.md`
-- [ ] `docs/practical/models/tiny-mlp-binary-classifier-usage.md`
+- [x] `docs/practical/models/linear-regression-usage.md`
+- [x] `docs/practical/models/logistic-regression-usage.md`
+- [x] `docs/practical/models/softmax-regression-usage.md`
+- [x] `docs/practical/models/knn-classifier-usage.md`
+- [x] `docs/practical/models/linear-svm-usage.md`
+- [x] `docs/practical/models/decision-tree-usage.md`
+- [x] `docs/practical/models/random-forest-usage.md`
+- [x] `docs/practical/models/gradient-boosting-regressor-usage.md`
+- [x] `docs/practical/models/gaussian-naive-bayes-usage.md`
+- [x] `docs/practical/models/kmeans-usage.md`
+- [x] `docs/practical/models/pca-usage.md`
+- [x] `docs/practical/models/tiny-mlp-binary-classifier-usage.md`
 
 #### Math-mapping docs per model
 
@@ -1479,27 +1479,27 @@ docs/practical/math-maps/<model-name>-math-map.md
 
 Suggested initial math-map docs:
 
-- [ ] `docs/practical/math-maps/linear-regression-math-map.md`
-- [ ] `docs/practical/math-maps/logistic-regression-math-map.md`
-- [ ] `docs/practical/math-maps/softmax-regression-math-map.md`
-- [ ] `docs/practical/math-maps/knn-classifier-math-map.md`
-- [ ] `docs/practical/math-maps/linear-svm-math-map.md`
-- [ ] `docs/practical/math-maps/decision-tree-math-map.md`
-- [ ] `docs/practical/math-maps/random-forest-math-map.md`
-- [ ] `docs/practical/math-maps/gradient-boosting-regressor-math-map.md`
-- [ ] `docs/practical/math-maps/gaussian-naive-bayes-math-map.md`
-- [ ] `docs/practical/math-maps/kmeans-math-map.md`
-- [ ] `docs/practical/math-maps/pca-math-map.md`
-- [ ] `docs/practical/math-maps/tiny-mlp-binary-classifier-math-map.md`
+- [x] `docs/practical/math-maps/linear-regression-math-map.md`
+- [x] `docs/practical/math-maps/logistic-regression-math-map.md`
+- [x] `docs/practical/math-maps/softmax-regression-math-map.md`
+- [x] `docs/practical/math-maps/knn-classifier-math-map.md`
+- [x] `docs/practical/math-maps/linear-svm-math-map.md`
+- [x] `docs/practical/math-maps/decision-tree-math-map.md`
+- [x] `docs/practical/math-maps/random-forest-math-map.md`
+- [x] `docs/practical/math-maps/gradient-boosting-regressor-math-map.md`
+- [x] `docs/practical/math-maps/gaussian-naive-bayes-math-map.md`
+- [x] `docs/practical/math-maps/kmeans-math-map.md`
+- [x] `docs/practical/math-maps/pca-math-map.md`
+- [x] `docs/practical/math-maps/tiny-mlp-binary-classifier-math-map.md`
 
 #### Final practical summary
 
-- [ ] Write a practical workflow summary:
+- [x] Write a practical workflow summary:
   - `docs/practical/practical-workflows-summary.md`
-- [ ] Summarize which models worked best on which dataset types
-- [ ] Summarize which hyperparameters had the clearest effects
-- [ ] Summarize what was easy or hard when using the C++ ML Core on real data
-- [ ] Summarize what should be improved later, without expanding the current project scope indefinitely
+- [x] Summarize which models worked best on which dataset types
+- [x] Summarize which hyperparameters had the clearest effects
+- [x] Summarize what was easy or hard when using the C++ ML Core on real data
+- [x] Summarize what should be improved later, without expanding the current project scope indefinitely
 
 ### Expected files / deliverables
 
@@ -1512,7 +1512,7 @@ Suggested initial math-map docs:
 - practical workflow outputs:
   - `outputs/phase-11-practical-workflows/`
 - notebook folder:
-  - `notebooks/phase-11-practical-workflows/`
+  - `notebooks/practical-workflows/`
 - practical docs:
   - `docs/practical/models/`
   - `docs/practical/math-maps/`
@@ -1539,15 +1539,15 @@ Suggested initial math-map docs:
 
 ### Exit criteria
 
-- [ ] At least one real regression dataset is used end-to-end
-- [ ] At least one real binary classification dataset is used end-to-end
-- [ ] At least one real multiclass classification dataset is used end-to-end
-- [ ] At least one unsupervised PCA/KMeans workflow is exported and visualized
-- [ ] The project has a reusable way to load numeric CSV datasets into `Matrix` / `Vector`
-- [ ] Experiment outputs can be consumed from Python/Jupyter without manual cleanup
-- [ ] Main model families have practical usage docs
-- [ ] Main model families have math-mapping docs
-- [ ] The practical phase demonstrates that ML Core can be used as a small real experimentation framework
+- [x] At least one real regression dataset is used end-to-end
+- [x] At least one real binary classification dataset is used end-to-end
+- [x] At least one real multiclass classification dataset is used end-to-end
+- [x] At least one unsupervised PCA/KMeans workflow is exported and visualized
+- [x] The project has a reusable way to load numeric CSV datasets into `Matrix` / `Vector`
+- [x] Experiment outputs can be consumed from Python/Jupyter without manual cleanup
+- [x] Main model families have practical usage docs
+- [x] Main model families have math-mapping docs
+- [x] The practical phase demonstrates that ML Core can be used as a small real experimentation framework
 
 ### Optimization note
 

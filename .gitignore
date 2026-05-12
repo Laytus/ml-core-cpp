@@ -84,6 +84,7 @@ outputs/practical-exercises/regression/*.csv
 outputs/practical-exercises/binary-classification/*.csv
 outputs/practical-exercises/multiclass-classification/*.csv
 outputs/practical-exercises/unsupervised/*.csv
+scripts/create_notebooks/
 
 
 # ------------------------------------------------------------
