@@ -1,170 +1,56 @@
 # ML Core
 
-A serious C++ Machine Learning foundation project designed to build the full classical ML core needed **before Deep Learning**.
+**Classical machine learning implemented in C++17 with Eigen, from reusable model components to real-dataset experimentation workflows.**
 
-This project is now in its final wrap-up stage. The main implementation, experiment, practical workflow, and documentation layers are complete.
+ML Core is a C++ implementation project covering the main foundations of classical machine learning, including supervised and unsupervised models, optimization, preprocessing, evaluation, and practical model comparison.
 
----
-
-## Purpose
-
-ML Core builds a strong Machine Learning foundation through a combination of:
-
-- theory
-- C++ implementation
-- experiments
-- structured documentation
-- practical workflows with real datasets
-- Python/Jupyter analysis of exported outputs
-
-The goal is to study Machine Learning seriously enough that the transition to Deep Learning happens on top of a real foundation rather than on top of fragmented intuition.
-
-This project is:
-
-- conceptually solid
-- implementation-oriented
-- mathematically grounded
-- experimentally validated
-- connected to real practical workflows
-- optimized for fast progress without oversimplifying the material
+The project is **complete within its defined scope**. Python and Jupyter are used only for validation and visualization; the core ML implementations remain in C++.
 
 ---
 
-## Project Positioning
+## Highlights
 
-This repository should be treated as:
-
-- a serious ML foundation project before Deep Learning
-- a structured and optimized study roadmap
-- a C++ implementation project supported by practical helper tools
-- a bridge between introductory ML intuition and full DL preparation
-- a completed foundation layer for the next Deep Learning project
-
-It should **not** be treated as:
-
-- a toy ML repo
-- a rushed overview of random ML topics
-- a full production ML framework
-- a replacement for mature ML libraries
-- an endless classical ML expansion project
+- Classical ML models implemented from the algorithmic level in **C++17**
+- Matrix and vector operations powered by **Eigen**
+- Reusable preprocessing, dataset splitting, cross-validation, and evaluation utilities
+- Linear models, trees, ensembles, distance-based methods, probabilistic models, PCA, and KMeans
+- Reusable optimization components covering batch GD, SGD, mini-batch GD, and momentum
+- Practical workflows on real regression, binary classification, multiclass classification, and unsupervised datasets
+- Structured CSV outputs with Python/Pandas verification and Jupyter visualization
+- Dedicated theory, model-usage, and method-to-math documentation
+- Minimal neural-network bridge with manual forward propagation and backpropagation
 
 ---
 
-## Current Status
+## Implemented models
 
-The core project is complete.
+| Family | Implementations |
+| --- | --- |
+| Regression | `LinearRegression`, Ridge regularization, `DecisionTreeRegressor`, `GradientBoostingRegressor` |
+| Binary classification | `LogisticRegression`, `LinearSVM`, `GaussianNaiveBayes`, `DecisionTreeClassifier`, `RandomForestClassifier`, `TinyMLPBinaryClassifier`, `Perceptron` |
+| Multiclass classification | `SoftmaxRegression`, `KNNClassifier`, `GaussianNaiveBayes`, `DecisionTreeClassifier`, `RandomForestClassifier` |
+| Unsupervised learning | `PCA`, `KMeans` |
 
-Completed layers include:
+### Supporting components
 
-- mathematical and statistical foundations
-- data pipeline and evaluation methodology
-- linear regression and regularized linear behavior
-- binary and multiclass linear classification
-- optimization methods for trainable models
-- tree models and tree ensembles
-- distance-based learning and linear SVM
-- unsupervised learning with PCA and KMeans
-- probabilistic ML with Gaussian Naive Bayes
-- a minimal bridge to Deep Learning through Perceptron and Tiny MLP
-- practical workflows with real datasets
-- model usage documentation
-- method-to-math mapping documentation
-- final inventory and wrap-up documentation
+The reusable support layer includes:
 
-The remaining work is final cleanup and project closure.
-
----
-
-## Scope
-
-ML Core covers the serious core of classical Machine Learning that should be understood before starting Deep Learning seriously.
-
-This includes:
-
-- mathematical and statistical foundations for ML
-- data pipeline and evaluation methodology
-- multivariate linear models
-- logistic regression and softmax regression
-- optimization for ML
-- regularization and generalization
-- trees and ensemble intuition
-- distance-based learning and margin intuition
-- unsupervised learning essentials
-- probabilistic ML essentials
-- bridge to neural networks and backpropagation
-- practical real-dataset workflows
-
-This project is not trying to cover every ML topic.
-
-It is trying to cover the **real core** that matters before DL.
-
----
-
-## Implemented Model Families
-
-### Regression
-
-- `LinearRegression`
-- Ridge behavior through `LinearRegression` regularization
-- `DecisionTreeRegressor`
-- `GradientBoostingRegressor`
-
-### Binary classification
-
-- `LogisticRegression`
-- `LinearSVM`
-- `GaussianNaiveBayes`
-- `DecisionTreeClassifier`
-- `RandomForestClassifier`
-- `TinyMLPBinaryClassifier`
-- `Perceptron` as an educational bridge model
-
-### Multiclass classification
-
-- `SoftmaxRegression`
-- `KNNClassifier`
-- `GaussianNaiveBayes`
-- `DecisionTreeClassifier`
-- `RandomForestClassifier`
-
-### Unsupervised learning
-
-- `PCA`
-- `KMeans`
-
-### Supporting utilities
-
-- regression metrics
-- binary classification metrics
-- multiclass metrics
-- data splitting utilities
-- cross-validation utilities
-- preprocessing utilities and fitted preprocessing pipelines
+- train/test and train/validation/test splitting
+- k-fold cross-validation
+- preprocessing pipelines
+- standardization and normalization utilities
+- regression, binary classification, and multiclass metrics
 - distance metrics
-- kernel similarity utilities
-- bootstrap sampling utilities
-- CSV dataset loading utilities
-- structured practical output writers
+- linear, polynomial, and RBF kernel utilities
+- bootstrap sampling
+- CSV dataset loading
+- structured experiment output utilities
 
 ---
 
-## Practical Workflow Layer
+## Practical workflows
 
-The final project includes practical workflows with real datasets.
-
-The practical workflow layer demonstrates:
-
-- numeric CSV dataset loading
-- conversion into `Matrix` / `Vector`
-- preprocessing discipline
-- model comparison
-- hyperparameter sweeps
-- structured CSV exports
-- Python/Pandas verification
-- Jupyter visualization
-- practical interpretation
-
-Main workflow families:
+The project includes end-to-end workflows for:
 
 - regression
 - binary classification
@@ -172,112 +58,78 @@ Main workflow families:
 - unsupervised learning
 - hyperparameter sweeps
 
-Main output root:
+Representative datasets used during the final practical validation include:
 
-```txt
-outputs/practical-exercises/
+- `stock_ohlcv_engineered`
+- `nasa_kc1_software_defects`
+- `wine`
+
+The workflow layer covers:
+
+```text
+dataset loading
+      ↓
+preprocessing
+      ↓
+train / validation / test workflow
+      ↓
+model fitting
+      ↓
+metrics and model comparison
+      ↓
+structured CSV outputs
+      ↓
+Python/Pandas verification
+      ↓
+Jupyter visualization and interpretation
 ```
 
-Main notebook folder:
+Core model logic remains in C++; Python and Jupyter are used only as analysis and verification tools.
 
-```txt
-notebooks/practical-workflows/
+---
+
+## Architecture
+
+The repository separates reusable implementation code from experiments, documentation, and analysis tooling.
+
+```text
+include/ml/     Public C++ interfaces
+src/            Reusable C++ implementations
+experiments/    Model sanity checks and behavior studies
+data/           Input datasets and metadata
+outputs/        Generated experiment artifacts
+docs/theory/    Mathematical and conceptual documentation
+docs/practical/ Model usage, math maps, and workflow documentation
+docs/general/   Project architecture, inventories, and wrap-up material
+notebooks/      Jupyter analysis and visualization
+scripts/        Python verification and summary helpers
+app/            Executable entrypoints
 ```
 
-Main practical docs:
+The main implementation modules include:
 
-```txt
-docs/practical/
+```text
+common/
+linear_models/
+optimization/
+trees/
+distance/
+unsupervised/
+probabilistic/
+dl_bridge/
 ```
 
 ---
 
-## Tooling
+## Build and run
 
-ML Core is implemented in **C++17** and uses:
+### Requirements
 
-- **CMake**
-- **Eigen** for matrix operations
-- CSV/data utilities
-- structured output writers
-- Python/Pandas verification scripts
-- Jupyter notebooks for visualization
-- optional external reference comparisons where useful
-
-### Why Eigen is used
-
-Eigen is used because:
-
-- matrix operations become central very quickly in serious ML
-- the project goal is ML, not writing a full matrix library
-- using Eigen avoids wasting time on infrastructure that is not the main learning target
-
-The core ML logic remains in C++.
-
-Python and Jupyter are support tools for validating and visualizing exported results.
-
----
-
-## Current Build Targets
-
-The repository uses two executables:
-
-### `ml_core_app`
-
-A clean and minimal project entrypoint.
-
-### `ml_core_tests`
-
-A structured manual validation runner for:
-
-- sanity checks
-- per-phase demos
-- practical workflow checks
-- manual testing during development
-
-This keeps the main app clean while still allowing fast iteration.
-
----
-
-## Repository Structure
-
-Main repository areas:
-
-```txt
-docs/
-include/
-src/
-data/
-experiments/
-outputs/
-notebooks/
-scripts/
-app/
-```
-
-### Responsibilities
-
-- `docs/` → project docs, theory notes, action plans, practical docs, final inventories
-- `include/` → reusable public headers
-- `src/` → reusable implementations
-- `data/` → input datasets
-- `experiments/` → phase-specific experiment workflows
-- `outputs/` → generated artifacts and output folder structure
-- `notebooks/` → Python/Jupyter analysis of exported outputs
-- `scripts/` → verification and summary helper scripts
-- `app/` → executable entrypoints
-
-For detailed structural rules, see:
-
-- `docs/general/repo-structure.md`
-
----
-
-## Build
+- C++17-compatible compiler
+- CMake
+- Eigen
 
 ### Configure and build
-
-From the project root:
 
 ```bash
 cmake -S . -B build
@@ -291,19 +143,19 @@ cmake --build build
 ./build/ml_core_tests
 ```
 
-For project-specific build conventions, see:
+`ml_core_app` provides the minimal project entrypoint.
 
-- `docs/general/build-notes.md`
+`ml_core_tests` currently acts as the structured validation runner used for sanity checks, phase-level validation, and practical workflow checks.
+
+> A dedicated automated unit-test/CTest layer is planned as a repository-quality improvement.
 
 ---
 
-## Python Environment for Practical Analysis
+## Python analysis environment
 
-The C++ project can be built and tested without Python.
+Python is not required for the core C++ implementation.
 
-Python is used for practical output verification and notebooks.
-
-Recommended setup:
+It is used for verification and visualization of exported practical results.
 
 ```bash
 python3 -m venv .venv
@@ -311,135 +163,112 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-Useful scripts:
+Useful verification scripts include:
 
 ```bash
 python3 scripts/verify_practical_outputs.py
 python3 scripts/summarize_hyperparameter_sweeps.py
 ```
 
+Jupyter notebooks for practical analysis live under:
+
+```text
+notebooks/practical-workflows/
+```
+
 ---
 
-## Documentation Map
+## Validation approach
 
-### General docs
+ML Core was developed with several complementary validation layers:
 
-- `docs/general/action-plan.md`
-- `docs/general/ml-core.md`
-- `docs/general/model-inventory.md`
-- `docs/general/experiment-inventory.md`
-- `docs/general/ml-core-wrap-up.md`
-- `docs/general/dl-roadmap-entry.md`
-- `docs/general/repo-structure.md`
-- `docs/general/build-notes.md`
+- deterministic sanity checks for individual implementations
+- model-behavior experiments
+- metric and optimization comparisons
+- real-dataset end-to-end workflows
+- exported result verification with Python/Pandas
+- Jupyter-based visualization and interpretation
 
-### Theory docs
+The repository intentionally separates reusable model code from experiment and analysis code.
 
-Theory docs live under:
+---
 
-```txt
+## Documentation
+
+### General project documentation
+
+- [`docs/general/ml-core.md`](docs/general/ml-core.md) — project identity and scope
+- [`docs/general/action-plan.md`](docs/general/action-plan.md) — completed phase-by-phase execution plan
+- [`docs/general/model-inventory.md`](docs/general/model-inventory.md) — final model inventory
+- [`docs/general/experiment-inventory.md`](docs/general/experiment-inventory.md) — experiment and output inventory
+- [`docs/general/ml-core-wrap-up.md`](docs/general/ml-core-wrap-up.md) — final project closure and scope summary
+
+### Theory
+
+Mathematical and conceptual notes live under:
+
+```text
 docs/theory/
 ```
 
-They connect the C++ implementations to the mathematical foundations.
+They cover the theory behind the main implemented model families and optimization methods.
 
-### Practical docs
+### Practical documentation
 
-Practical docs live under:
+Practical documentation lives under:
 
-```txt
+```text
 docs/practical/
 ```
 
-Important practical docs include:
+It includes:
 
-- `docs/practical/practical-workflows-summary.md`
-- `docs/practical/models/`
-- `docs/practical/math-maps/`
-- `docs/practical/sweeps/`
-
----
-
-## Working Method
-
-For each implementation step, the project followed the same concise workflow:
-
-1. add theory to the corresponding doc
-2. write the step’s concise action plan
-3. define header file(s)
-4. define validations
-5. define implementation action plan without code
-6. define the test plan
-7. implement the code
-8. run sanity checks
-9. document results
-
-This workflow kept:
-
-- theory aligned with implementation
-- scope explicit
-- code structure clean
-- progress trackable
-- final documentation reliable
+- model usage guides
+- method-to-math mappings
+- hyperparameter sweep summaries
+- practical workflow interpretation
 
 ---
 
-## Verification Checklist
+## Scope and limitations
 
-Useful final checks:
+ML Core is intentionally **not** a production ML framework or a replacement for libraries such as scikit-learn.
 
-```bash
-cmake --build build
-./build/ml_core_tests
-python3 scripts/verify_practical_outputs.py
-python3 scripts/summarize_hyperparameter_sweeps.py
-```
+Some areas were deliberately scoped or deferred.
 
-The Python scripts require practical CSV outputs to exist under:
+### Intentionally limited
 
-```txt
-outputs/practical-exercises/
-```
+- `LinearSVM` uses a primal linear formulation rather than a full kernel SVM solver
+- kernel functions are available as utilities, but SMO/dual kernel-SVM training is not implemented
+- `TinyMLPBinaryClassifier` is a minimal educational bridge, not a general neural-network framework
+- missing-value handling in trees uses explicit rejection rather than learned routing
+- advanced pruning and full out-of-bag scoring were deferred
 
-Those CSV files are generated artifacts and may be ignored by Git.
+### Out of scope
 
----
+- production MLOps and model serving
+- distributed training
+- GPU acceleration
+- automatic differentiation
+- AutoML
+- full deep-learning architectures
+- large-scale benchmark infrastructure
 
-## Final Outcome
-
-By the end of ML Core, the repository provides:
-
-- a serious understanding of classical ML foundations
-- strong intuition for optimization and generalization
-- practical experience with vectorized ML implementations
-- a clear understanding of evaluation methodology
-- reusable implementations for major classical ML model families
-- a useful foundation in trees, ensembles, unsupervised learning, and probabilistic ML
-- a direct conceptual bridge to neural networks and Deep Learning
-- a real-dataset practical workflow layer
-- structured usage and math-map docs for the main models
-- final inventories and wrap-up documentation
-
-Most importantly, it leaves the next Deep Learning project as a natural continuation rather than a leap into partially understood ideas.
+These boundaries are intentional: the repository is focused on classical ML implementation, experimentation, and the conceptual bridge to deep learning.
 
 ---
 
-## Next Step
+## Project status
 
-The next step is not to keep expanding ML Core indefinitely.
+**Status: Complete**
 
-The next step is to start the Deep Learning project defined in:
+ML Core is frozen as a classical machine-learning foundation project.
 
-```txt
-docs/general/dl-roadmap-entry.md
-```
+Future changes should be limited primarily to:
 
----
+- bug fixes
+- test improvements
+- documentation corrections
+- repository-quality improvements
 
-## Final Note
-
-This project built the actual base layer that was missing before Deep Learning.
-
-It is not a warm-up anymore.
-
-It is the completed ML foundation project.
+Further model-family expansion belongs in separate projects.
