@@ -83,7 +83,7 @@ target_link_libraries(ml_core_app
         ml_core
 )
 
-add_executable(ml_core_tests
+add_executable(ml_core_validation
     app/test_runner.cpp
     experiments/common/manual_test_utils.cpp
     experiments/phase-1-math-sanity/phase1_math_sanity.cpp
@@ -101,7 +101,7 @@ add_executable(ml_core_tests
     experiments/phase-11-practical-workflows/phase11_practical_workflows_sanity.cpp
 )
 
-target_include_directories(ml_core_tests
+target_include_directories(ml_core_validation
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/common
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-1-math-sanity
@@ -117,7 +117,23 @@ target_include_directories(ml_core_tests
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-11-practical-workflows
 )
 
-target_link_libraries(ml_core_tests
+target_link_libraries(ml_core_validation
     PRIVATE
         ml_core
 )
+
+include(CTest)
+
+if(BUILD_TESTING)
+    include(FetchContent)
+
+    FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.16.0
+    )
+
+    FetchContent_MakeAvailable(Catch2)
+
+    add_subdirectory(tests)
+endif()
