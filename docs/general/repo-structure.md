@@ -10,9 +10,9 @@ Its goal is to keep the project:
 - easy to navigate
 - modular
 - resistant to structural drift
-- clear about the separation between reusable implementation code, experiments, generated outputs, documentation, datasets, and analysis tooling
+- explicit about the separation between reusable implementation code, automated tests, experiments, generated outputs, documentation, datasets, and analysis tooling
 
-This document should be treated as the structural reference for where code, docs, experiments, outputs, datasets, notebooks, scripts, and executable entrypoints belong.
+This document is the structural reference for where code, tests, docs, experiments, outputs, datasets, notebooks, scripts, CI configuration, and executable entrypoints belong.
 
 ---
 
@@ -21,6 +21,7 @@ This document should be treated as the structural reference for where code, docs
 The final project is organized around the following main areas:
 
 ```text
+.github/
 app/
 data/
 docs/
@@ -30,9 +31,10 @@ notebooks/
 outputs/
 scripts/
 src/
+tests/
 ```
 
-Supporting top-level files include project build, environment, and repository configuration such as:
+Supporting top-level files include build, environment, and repository configuration such as:
 
 ```text
 CMakeLists.txt
@@ -45,16 +47,61 @@ The main structural principle is:
 
 ```text
 include/ + src/   reusable C++ implementation
+tests/            automated deterministic tests
 experiments/      sanity checks and behavior studies
 data/             input datasets and metadata
 outputs/          generated experiment artifacts
 docs/             theory, practical documentation, and project-level documentation
 notebooks/        analysis and visualization
 scripts/          Python verification and summary helpers
-app/              executable entrypoints
+app/              executable entrypoints and manual validation wiring
+.github/workflows continuous integration
 ```
 
 Each area has a distinct responsibility and should not be mixed with the others.
+
+---
+
+## `.github/`
+
+The `.github/` folder stores GitHub-specific repository automation and metadata.
+
+The current CI workflow lives under:
+
+```text
+.github/workflows/ci.yml
+```
+
+### Purpose
+
+GitHub Actions is used to automatically validate the repository on pushes and pull requests.
+
+The CI workflow performs:
+
+```text
+checkout
+   ↓
+install build dependencies
+   ↓
+CMake configure
+   ↓
+build
+   ↓
+CTest
+```
+
+### Rule
+
+CI configuration belongs under `.github/workflows/`.
+
+Do not place:
+
+- application logic
+- model code
+- experiment code
+- generated outputs
+
+inside `.github/`.
 
 ---
 
@@ -133,7 +180,7 @@ docs/practical/practical-workflows-summary.md
 
 Model usage guides.
 
-These documents should explain:
+These documents explain:
 
 - supported task type
 - expected inputs
@@ -186,6 +233,7 @@ include/ml/distance/
 include/ml/unsupervised/
 include/ml/probabilistic/
 include/ml/dl_bridge/
+include/ml/workflows/
 ```
 
 ### Purpose
@@ -205,11 +253,11 @@ Only reusable project code belongs here.
 
 Do **not** put:
 
+- automated tests
 - experiment runners
 - notebook logic
 - one-off analysis code
 - phase notes
-- large validation-only code
 - generated outputs
 
 ---
@@ -218,7 +266,7 @@ Do **not** put:
 
 This folder contains the reusable C++ implementations corresponding to the public interfaces in `include/`.
 
-Its organization should mirror the main modules in `include/ml/`.
+Its organization mirrors the main modules in `include/ml/`.
 
 Representative structure:
 
@@ -231,6 +279,7 @@ src/distance/
 src/unsupervised/
 src/probabilistic/
 src/dl_bridge/
+src/workflows/
 ```
 
 ### Purpose
@@ -243,6 +292,7 @@ src/dl_bridge/
 - preprocessing and evaluation infrastructure
 - optimization logic
 - data-loading helpers that belong to the C++ core
+- reusable practical workflow orchestration
 
 ### Rule
 
@@ -253,8 +303,72 @@ Do not let reusable logic accumulate in:
 ```text
 app/
 experiments/
+tests/
 scripts/
 notebooks/
+```
+
+---
+
+## `tests/`
+
+This folder contains the automated test suite.
+
+The project uses:
+
+```text
+Catch2
+CTest
+```
+
+The test suite is intended to remain:
+
+- deterministic
+- fast
+- self-contained
+- independent from large external datasets
+- suitable for local execution and CI
+
+Representative structure:
+
+```text
+tests/
+  common/
+  linear_models/
+  trees/
+  distance/
+  unsupervised/
+  probabilistic/
+  dl_bridge/
+  CMakeLists.txt
+```
+
+### Purpose
+
+Automated tests should verify:
+
+- known mathematical behavior on small synthetic datasets
+- input and option validation
+- API misuse
+- model invariants
+- fitted/unfitted behavior
+- deterministic behavior where applicable
+
+### Rule
+
+Automated tests should not become behavior-study scripts or large practical workflows.
+
+Use:
+
+```text
+tests/        correctness and regression checks
+experiments/  behavior studies and practical workflows
+```
+
+The automated suite should be runnable through:
+
+```bash
+ctest --test-dir build --output-on-failure
 ```
 
 ---
@@ -289,22 +403,31 @@ It should **not** become:
 
 ### `test_runner.cpp`
 
-This is the structured validation runner used during project development.
+This is the structured manual validation runner used during project development.
+
+Its compiled executable is:
+
+```text
+ml_core_validation
+```
 
 Its role is to support:
 
 - sanity checks
 - phase-level validation
+- behavior studies
 - practical workflow checks
 - manual validation during development
 
-It is not intended to replace a dedicated automated unit-test suite.
+It is intentionally separate from the automated Catch2/CTest suite.
 
 ### Rule
 
 `app/` is for executable wiring and manual validation entrypoints.
 
 Reusable logic belongs in `include/` + `src/`.
+
+Automated tests belong in `tests/`.
 
 Larger experiment workflows belong in `experiments/`.
 
@@ -320,6 +443,7 @@ Examples include:
 - behavior studies
 - optimizer comparisons
 - model comparisons
+- hyperparameter sweeps
 - practical workflow runners
 - experiment-specific export logic
 
@@ -333,6 +457,7 @@ Use the following boundary:
 
 ```text
 reusable across models/phases   -> include/ + src/
+automated correctness test      -> tests/
 small executable wiring         -> app/
 experiment-specific workflow    -> experiments/
 generated result                -> outputs/
@@ -553,36 +678,97 @@ Examples include:
 
 Do **not** use `common/` as a miscellaneous dumping ground.
 
-### Model-specific modules
+### `linear_models/`
 
-If code belongs clearly to one model family or concept, keep it there.
-
-Examples:
+Use for reusable linear and margin-based supervised models such as:
 
 ```text
-linear regression, logistic regression, softmax, LinearSVM
-    -> linear_models/
-
-Decision Trees, Random Forest, Gradient Boosting, bootstrap helpers
-    -> trees/
-
-distance metrics, k-NN, kernel utilities
-    -> distance/
-
-PCA, KMeans
-    -> unsupervised/
-
-Gaussian Naive Bayes
-    -> probabilistic/
-
-Perceptron, Tiny MLP, activations
-    -> dl_bridge/
-
-gradient descent, SGD, mini-batch GD, momentum
-    -> optimization/
+LinearRegression
+LogisticRegression
+SoftmaxRegression
+LinearSVM
 ```
 
-This keeps ownership explicit and prevents structural drift.
+### `optimization/`
+
+Use for reusable optimization infrastructure such as:
+
+```text
+batch gradient descent
+SGD
+mini-batch gradient descent
+momentum
+training history
+```
+
+### `trees/`
+
+Use for tree and ensemble components such as:
+
+```text
+DecisionTreeClassifier
+DecisionTreeRegressor
+RandomForestClassifier
+GradientBoostingRegressor
+bootstrap helpers
+split-scoring infrastructure
+```
+
+### `distance/`
+
+Use for:
+
+```text
+distance metrics
+KNNClassifier
+kernel similarity utilities
+```
+
+### `unsupervised/`
+
+Use for:
+
+```text
+PCA
+KMeans
+```
+
+### `probabilistic/`
+
+Use for:
+
+```text
+GaussianNaiveBayes
+```
+
+### `dl_bridge/`
+
+Use for the deliberately scoped Deep Learning bridge:
+
+```text
+Perceptron
+TinyMLPBinaryClassifier
+activation helpers
+```
+
+### `workflows/`
+
+Use for reusable orchestration supporting practical end-to-end model workflows.
+
+Representative responsibilities include:
+
+- regression comparison workflows
+- binary classification comparison workflows
+- multiclass classification comparison workflows
+- unsupervised workflows
+- hyperparameter sweeps
+- structured output writing
+
+### Rule
+
+The `workflows/` module should contain reusable workflow orchestration, not one-off experiment logic.
+
+If a workflow is narrow, phase-specific, or exploratory, keep it in `experiments/`.
 
 ---
 
@@ -649,7 +835,7 @@ namespace ml::common {
 
 ---
 
-## Reusable Code vs Experiment Code
+## Reusable Code vs Tests vs Experiment Code
 
 This is one of the most important structural boundaries in the repository.
 
@@ -657,10 +843,20 @@ This is one of the most important structural boundaries in the repository.
 
 Put code in `include/` + `src/` when it is:
 
-- conceptually part of the ML library
+- conceptually part of the ML core
 - expected to be reused
 - part of a model or shared utility
 - independent of one narrow experiment
+
+### Automated test code
+
+Put code in `tests/` when it verifies:
+
+- deterministic correctness
+- API contracts
+- input validation
+- invariants
+- regression behavior
 
 ### Experiment code
 
@@ -693,6 +889,7 @@ outputs/
 
 ```text
 Reusable C++ logic        -> include/ + src/
+Automated correctness     -> tests/
 Executable wiring         -> app/
 Experiment workflows      -> experiments/
 Generated artifacts       -> outputs/
@@ -700,6 +897,7 @@ Input data                -> data/
 Theory/project docs       -> docs/
 Python verification       -> scripts/
 Visualization/analysis    -> notebooks/
+CI configuration          -> .github/workflows/
 ```
 
 ---
@@ -745,27 +943,106 @@ Do not store generated model outputs under `data/`.
 
 ---
 
-## App / Validation / Experiment Separation
+## Automated Tests vs Manual Validation vs Experiments
 
-The intended boundary is:
+The project now has three distinct validation layers.
 
-### `app/main.cpp`
+### `tests/`
 
-Minimal and stable application entrypoint.
+Automated Catch2 tests discovered and executed by CTest.
 
-### `app/test_runner.cpp`
+Use for:
 
-Structured manual validation runner.
+- deterministic correctness checks
+- validation behavior
+- known synthetic-data results
+- regression protection
+
+### `app/test_runner.cpp` → `ml_core_validation`
+
+Manual validation runner.
+
+Use for:
+
+- selected sanity workflows
+- phase-level manual validation
+- convenient development-time checks
 
 ### `experiments/`
 
-Larger phase-specific sanity checks, behavior studies, and practical workflows.
+Broader behavior studies and practical workflows.
 
-### `include/` + `src/`
+Use for:
 
-Reusable implementation code.
+- model comparisons
+- optimizer studies
+- hyperparameter sweeps
+- real-dataset workflows
+- generated output artifacts
 
-This boundary should remain stable even as repository-quality improvements add a dedicated automated testing layer.
+### Rule
+
+These layers should remain separate.
+
+A large practical workflow should not be moved into CTest merely to increase test count.
+
+An automated correctness check should not depend on generated experiment outputs or large datasets.
+
+---
+
+## Build and Test Integration
+
+The project uses CMake as the build system.
+
+With automated tests enabled:
+
+```bash
+cmake -S . -B build -DBUILD_TESTING=ON
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+The automated tests are integrated through:
+
+```text
+Catch2
+CTest
+tests/CMakeLists.txt
+```
+
+The manual validation runner remains separately executable as:
+
+```bash
+./build/ml_core_validation
+```
+
+---
+
+## Continuous Integration
+
+The repository uses GitHub Actions to build and test the project automatically.
+
+Workflow:
+
+```text
+.github/workflows/ci.yml
+```
+
+The current CI validates the project on Ubuntu using:
+
+```text
+CMake
+Ninja
+Eigen
+Catch2
+CTest
+```
+
+### Rule
+
+CI should run the fast automated test suite.
+
+Manual validation workflows and heavier experiment workflows should remain outside the default CI path unless there is a clear future reason to include them.
 
 ---
 
@@ -775,47 +1052,35 @@ To keep the repository coherent:
 
 - do not use `main.cpp` as a scratchpad
 - do not let `test_runner.cpp` become a permanent archive of unrelated historical checks
-- do not duplicate reusable logic inside experiment runners
+- do not duplicate reusable logic inside tests or experiment runners
+- do not turn `tests/` into a behavior-study framework
 - do not place model implementations in notebooks or Python scripts
 - do not place theory in generated-output folders
 - do not place generated results in `data/`
 - do not use `common/` as a miscellaneous dumping ground
 - do not keep large generated artifacts without a clear reason
 - do not create new top-level folders when an existing responsibility already fits the content
+- do not add heavy experiment workflows to CI simply to increase apparent coverage
 
 ---
 
-## Repository-Quality Improvements
+## Repository-Quality Infrastructure
 
-The final project structure is stable.
-
-Future repository-quality work may add infrastructure such as:
+The repository-quality layer now includes:
 
 ```text
-.github/workflows/
 tests/
+.github/workflows/ci.yml
+```
+
+Additional repository metadata and presentation files may include:
+
+```text
 LICENSE
 .gitattributes
 ```
 
-These additions should improve validation, CI, repository metadata, and presentation without changing the core ownership rules defined above.
-
-In particular, a future dedicated automated test layer should remain separate from:
-
-```text
-app/test_runner.cpp
-experiments/
-```
-
-so that:
-
-```text
-tests/        automated unit/integration tests
-app/          executable wiring
-experiments/  behavior studies and practical workflows
-```
-
-remain distinct responsibilities.
+These files should improve repository clarity, portability, language classification, and reuse without changing the core ownership rules defined above.
 
 ---
 
@@ -824,15 +1089,17 @@ remain distinct responsibilities.
 The repository should remain organized so that:
 
 ```text
-docs/         explain the project, theory, and practical usage
-include/      expose reusable C++ interfaces
-src/          implement the reusable ML core
-app/          provide executable entrypoints and manual validation wiring
-experiments/  contain phase-specific validation and behavior studies
-data/         store input datasets and metadata
-outputs/      store generated artifacts
-scripts/      verify and summarize exported results
-notebooks/    analyze and visualize outputs
+.github/     contains CI and GitHub-specific automation
+docs/        explain the project, theory, and practical usage
+include/     expose reusable C++ interfaces
+src/         implement the reusable ML core
+tests/       provide automated deterministic correctness checks
+app/         provide executable entrypoints and manual validation wiring
+experiments/ contain phase-specific validation and behavior studies
+data/        store input datasets and metadata
+outputs/     store generated artifacts
+scripts/     verify and summarize exported results
+notebooks/   analyze and visualize outputs
 ```
 
 The structure should make the codebase easier to understand, validate, and extend without turning ML Core into a broader framework than it was designed to be.

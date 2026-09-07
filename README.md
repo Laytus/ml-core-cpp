@@ -1,5 +1,7 @@
 # ML Core
 
+[![CI](https://github.com/Laytus/ml-core-cpp/actions/workflows/ci.yml/badge.svg)](https://github.com/Laytus/ml-core-cpp/actions/workflows/ci.yml)
+
 **Classical machine learning implemented in C++17 with Eigen, from reusable model components to real-dataset experimentation workflows.**
 
 ML Core is a C++ implementation project covering the main foundations of classical machine learning, including supervised and unsupervised models, optimization, preprocessing, evaluation, and practical model comparison.
@@ -16,6 +18,8 @@ The project is **complete within its defined scope**. Python and Jupyter are use
 - Linear models, trees, ensembles, distance-based methods, probabilistic models, PCA, and KMeans
 - Reusable optimization components covering batch GD, SGD, mini-batch GD, and momentum
 - Practical workflows on real regression, binary classification, multiclass classification, and unsupervised datasets
+- **49 automated Catch2 tests** discovered and executed through **CTest**
+- GitHub Actions CI building and testing the project automatically on Ubuntu
 - Structured CSV outputs with Python/Pandas verification and Jupyter visualization
 - Dedicated theory, model-usage, and method-to-math documentation
 - Minimal neural-network bridge with manual forward propagation and backpropagation
@@ -90,20 +94,22 @@ Core model logic remains in C++; Python and Jupyter are used only as analysis an
 
 ## Architecture
 
-The repository separates reusable implementation code from experiments, documentation, and analysis tooling.
+The repository separates reusable implementation code from tests, experiments, documentation, and analysis tooling.
 
 ```text
-include/ml/     Public C++ interfaces
-src/            Reusable C++ implementations
-experiments/    Model sanity checks and behavior studies
-data/           Input datasets and metadata
-outputs/        Generated experiment artifacts
-docs/theory/    Mathematical and conceptual documentation
-docs/practical/ Model usage, math maps, and workflow documentation
-docs/general/   Project architecture, inventories, and wrap-up material
-notebooks/      Jupyter analysis and visualization
-scripts/        Python verification and summary helpers
-app/            Executable entrypoints
+include/ml/        Public C++ interfaces
+src/               Reusable C++ implementations
+tests/             Automated Catch2 tests
+experiments/       Model sanity checks and behavior studies
+data/              Input datasets and metadata
+outputs/           Generated experiment artifacts
+docs/theory/       Mathematical and conceptual documentation
+docs/practical/    Model usage, math maps, and workflow documentation
+docs/general/      Project architecture, inventories, and wrap-up material
+notebooks/         Jupyter analysis and visualization
+scripts/           Python verification and summary helpers
+app/               Executable entrypoints and manual validation wiring
+.github/workflows/ Continuous integration
 ```
 
 The main implementation modules include:
@@ -117,6 +123,7 @@ distance/
 unsupervised/
 probabilistic/
 dl_bridge/
+workflows/
 ```
 
 ---
@@ -132,28 +139,79 @@ dl_bridge/
 ### Configure and build
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DBUILD_TESTING=ON
 cmake --build build
 ```
 
-### Run
+### Run automated tests
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+The current suite contains **49 Catch2 test cases** covering:
+
+- shared shape-validation, preprocessing, and classification-metric utilities
+- linear and logistic regression
+- softmax regression
+- linear SVM
+- decision trees
+- random forest
+- gradient boosting
+- k-NN
+- PCA
+- KMeans
+- Gaussian Naive Bayes
+- Perceptron
+- Tiny MLP
+
+The automated suite is designed to remain fast, deterministic, and self-contained.
+
+### Run manual validation workflows
+
+```bash
+./build/ml_core_validation
+```
+
+`ml_core_validation` is separate from the automated unit-test suite. It runs the existing sanity checks, behavior studies, and practical validation workflows used during development.
+
+### Run the minimal application entrypoint
 
 ```bash
 ./build/ml_core_app
-./build/ml_core_tests
 ```
 
-`ml_core_app` provides the minimal project entrypoint.
+---
 
-`ml_core_tests` currently acts as the structured validation runner used for sanity checks, phase-level validation, and practical workflow checks.
+## Continuous integration
 
-> A dedicated automated unit-test/CTest layer is planned as a repository-quality improvement.
+GitHub Actions automatically configures, builds, and tests the project on Ubuntu for pushes and pull requests.
+
+The CI workflow performs:
+
+```text
+checkout
+   ↓
+install build dependencies
+   ↓
+CMake configure
+   ↓
+build
+   ↓
+CTest
+```
+
+The workflow definition lives at:
+
+```text
+.github/workflows/ci.yml
+```
 
 ---
 
 ## Python analysis environment
 
-Python is not required for the core C++ implementation.
+Python is not required for the core C++ implementation or automated C++ tests.
 
 It is used for verification and visualization of exported practical results.
 
@@ -180,16 +238,38 @@ notebooks/practical-workflows/
 
 ## Validation approach
 
-ML Core was developed with several complementary validation layers:
+ML Core uses complementary validation layers:
 
-- deterministic sanity checks for individual implementations
-- model-behavior experiments
-- metric and optimization comparisons
-- real-dataset end-to-end workflows
-- exported result verification with Python/Pandas
-- Jupyter-based visualization and interpretation
+### Automated tests
 
-The repository intentionally separates reusable model code from experiment and analysis code.
+Catch2 + CTest provide fast deterministic checks for:
+
+- known mathematical behavior on small synthetic datasets
+- API misuse
+- option and input validation
+- model invariants
+- fitted/unfitted behavior
+- deterministic model behavior where applicable
+
+### Manual validation and experiments
+
+The existing `ml_core_validation` runner and `experiments/` layer support:
+
+- phase-level sanity checks
+- model-behavior studies
+- optimizer and hyperparameter comparisons
+- practical real-dataset workflows
+- structured experiment exports
+
+### External analysis
+
+Python/Pandas and Jupyter are used for:
+
+- exported-result verification
+- visualization
+- experiment interpretation
+
+These layers remain intentionally separate.
 
 ---
 
@@ -202,6 +282,7 @@ The repository intentionally separates reusable model code from experiment and a
 - [`docs/general/model-inventory.md`](docs/general/model-inventory.md) — final model inventory
 - [`docs/general/experiment-inventory.md`](docs/general/experiment-inventory.md) — experiment and output inventory
 - [`docs/general/ml-core-wrap-up.md`](docs/general/ml-core-wrap-up.md) — final project closure and scope summary
+- [`docs/general/repo-structure.md`](docs/general/repo-structure.md) — repository ownership and organization rules
 
 ### Theory
 
