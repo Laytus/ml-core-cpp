@@ -7,6 +7,22 @@ add_executable(
 
     linear_models/linear_regression_tests.cpp
     linear_models/logistic_regression_tests.cpp
+    linear_models/softmax_regression_tests.cpp
+    linear_models/linear_svm_tests.cpp
+
+    trees/decision_tree_tests.cpp
+    trees/random_forest_tests.cpp
+    trees/gradient_boosting_tests.cpp
+
+    distance/knn_classifier_tests.cpp
+
+    unsupervised/pca_tests.cpp
+    unsupervised/kmeans_tests.cpp
+
+    probabilistic/naive_bayes_tests.cpp
+
+    dl_bridge/perceptron_tests.cpp
+    dl_bridge/mlp_tests.cpp
 )
 
 target_link_libraries(
