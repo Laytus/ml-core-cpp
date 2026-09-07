@@ -1,0 +1,6 @@
+# Normalize text files while preserving binary files.
+* text=auto
+
+# Jupyter notebooks are analysis and visualization artifacts, not part of the
+# core implementation. Exclude them from GitHub Linguist language statistics.
+notebooks/** linguist-documentation
