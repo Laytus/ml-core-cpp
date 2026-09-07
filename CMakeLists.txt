@@ -9,7 +9,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Eigen3 REQUIRED NO_MODULE)
-
 add_library(ml_core
     src/common/shape_validation.cpp
     src/common/math_ops.cpp
@@ -63,7 +62,6 @@ add_library(ml_core
     src/workflows/unsupervised_comparison.cpp
     src/workflows/hyperparameter_sweeps.cpp
 )
-
 target_include_directories(ml_core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -82,7 +80,6 @@ target_link_libraries(ml_core_app
     PRIVATE
         ml_core
 )
-
 add_executable(ml_core_validation
     app/test_runner.cpp
     experiments/common/manual_test_utils.cpp
@@ -100,7 +97,6 @@ add_executable(ml_core_validation
     experiments/phase-10-dl-bridge/phase10_dl_bridge_sanity.cpp
     experiments/phase-11-practical-workflows/phase11_practical_workflows_sanity.cpp
 )
-
 target_include_directories(ml_core_validation
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/common
@@ -116,7 +112,6 @@ target_include_directories(ml_core_validation
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-10-dl-bridge
         ${CMAKE_CURRENT_SOURCE_DIR}/experiments/phase-11-practical-workflows
 )
-
 target_link_libraries(ml_core_validation
     PRIVATE
         ml_core
